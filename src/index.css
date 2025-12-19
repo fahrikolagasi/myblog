@@ -1,0 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply antialiased transition-colors duration-500;
+  }
+
+  /* Force Tokyo Night in Dark Mode */
+  html.dark body {
+    background-color: #1a1b26 !important;
+    color: #a9b1d6;
+    /* Tokyo Night Text */
+  }
+
+  /* Force Clean White in Light Mode */
+  html body {
+    background-color: #ffffff !important;
+    color: #1a1a1a;
+  }
+}

@@ -1,0 +1,58 @@
+{
+    "nav": {
+        "home": "Ana Sayfa",
+        "about": "Hakkımda",
+        "services": "Hizmetler",
+        "projects": "Projeler",
+        "contact": "İletişim"
+    },
+    "hero": {
+        "greeting": "Merhaba, Ben",
+        "role": "Full Stack Geliştirici",
+        "description": "Modern web teknolojileri ile kullanıcı dostu ve performanslı uygulamalar geliştiriyorum.",
+        "cta_primary": "Projelerimi Gör",
+        "cta_secondary": "İletişime Geç",
+        "scroll": "Aşağı Kaydır"
+    },
+    "about": {
+        "title": "Hakkımda",
+        "subtitle": "Biyografi",
+        "stats": {
+            "experience": "Yıl Deneyim",
+            "projects": "Proje",
+            "clients": "Mutlu Müşteri"
+        }
+    },
+    "services": {
+        "title": "Hizmetler",
+        "subtitle": "Neler Yapıyorum?",
+        "read_more": "Devamını Oku"
+    },
+    "projects": {
+        "title": "Projeler",
+        "subtitle": "Seçilmiş Çalışmalarım",
+        "visit": "Siteye Git",
+        "code": "Kodu İncele"
+    },
+    "contact": {
+        "title": "İletişim",
+        "subtitle": "Bana Ulaşın",
+        "name": "Adınız Soyadınız",
+        "email": "E-posta Adresiniz",
+        "message": "Mesajınız",
+        "send": "Gönder",
+        "sending": "Gönderiliyor...",
+        "success": "Mesajınız başarıyla gönderildi!",
+        "error": "Bir hata oluştu. Lütfen tekrar deneyin."
+    },
+    "footer": {
+        "cr": "Tüm hakları saklıdır."
+    },
+    "socials": {
+        "title": "SOSYAL MEDYA",
+        "follow": "TAKİP ET"
+    },
+    "song": {
+        "title": "Günün Şarkısı"
+    }
+}
