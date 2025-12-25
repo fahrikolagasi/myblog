@@ -57,107 +57,97 @@ const Hero = () => {
     };
 
     return (
-const Hero = () => {
-            // Smoother scroll to projects
-            const scrollToProjects = () => {
-                const projectsSection = document.getElementById('projects');
-                if (projectsSection) {
-                    projectsSection.scrollIntoView({ behavior: 'smooth' });
-                }
-            };
+        <section id="hero" className="relative w-full h-screen overflow-hidden bg-void-900 flex items-center justify-center text-white">
 
-            return (
-                <section id="hero" className="relative w-full h-screen overflow-hidden bg-void-900 flex items-center justify-center text-white">
+            {/* Dynamic Background Elements */}
+            <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
+                {/* Gradient Blobs */}
+                <motion.div
+                    animate={{
+                        x: [0, 100, 0],
+                        y: [0, -100, 0],
+                        scale: [1, 1.2, 1]
+                    }}
+                    transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-neon-purple rounded-full mix-blend-multiply filter blur-[128px] opacity-40"
+                />
+                <motion.div
+                    animate={{
+                        x: [0, -100, 0],
+                        y: [0, 100, 0],
+                        scale: [1, 1.3, 1]
+                    }}
+                    transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-neon-blue rounded-full mix-blend-multiply filter blur-[128px] opacity-40"
+                />
+                <motion.div
+                    animate={{
+                        x: [0, 50, 0],
+                        y: [0, 50, 0],
+                        scale: [1, 1.1, 1]
+                    }}
+                    transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute top-[30%] right-[30%] w-[400px] h-[400px] bg-neon-pink rounded-full mix-blend-multiply filter blur-[100px] opacity-30"
+                />
 
-                    {/* Dynamic Background Elements */}
-                    <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
-                        {/* Gradient Blobs */}
-                        <motion.div
-                            animate={{
-                                x: [0, 100, 0],
-                                y: [0, -100, 0],
-                                scale: [1, 1.2, 1]
-                            }}
-                            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-                            className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-neon-purple rounded-full mix-blend-multiply filter blur-[128px] opacity-40"
-                        />
-                        <motion.div
-                            animate={{
-                                x: [0, -100, 0],
-                                y: [0, 100, 0],
-                                scale: [1, 1.3, 1]
-                            }}
-                            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-                            className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-neon-blue rounded-full mix-blend-multiply filter blur-[128px] opacity-40"
-                        />
-                        <motion.div
-                            animate={{
-                                x: [0, 50, 0],
-                                y: [0, 50, 0],
-                                scale: [1, 1.1, 1]
-                            }}
-                            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-                            className="absolute top-[30%] right-[30%] w-[400px] h-[400px] bg-neon-pink rounded-full mix-blend-multiply filter blur-[100px] opacity-30"
-                        />
+                {/* Grid Overlay for "Dev" aesthetic */}
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 z-0"></div>
+                <div className="absolute inset-0 bg-grid-white/[0.02] bg-[length:50px_50px] z-0 pointer-events-none"></div>
+            </div>
 
-                        {/* Grid Overlay for "Dev" aesthetic */}
-                        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 z-0"></div>
-                        <div className="absolute inset-0 bg-grid-white/[0.02] bg-[length:50px_50px] z-0 pointer-events-none"></div>
-                    </div>
+            {/* Content Container */}
+            <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+                <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                >
+                    <h2 className="text-neon-blue font-mono text-lg tracking-widest mb-4 uppercase">
+                        Hello, I'm
+                    </h2>
+                    <h1 className="text-6xl md:text-8xl font-black tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-500 drop-shadow-lg">
+                        A Creative Developer
+                    </h1>
+                </motion.div>
 
-                    {/* Content Container */}
-                    <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-                        <motion.div
-                            initial={{ opacity: 0, y: 30 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.8, ease: "easeOut" }}
-                        >
-                            <h2 className="text-neon-blue font-mono text-lg tracking-widest mb-4 uppercase">
-                                Hello, I'm
-                            </h2>
-                            <h1 className="text-6xl md:text-8xl font-black tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-500 drop-shadow-lg">
-                                A Creative Developer
-                            </h1>
-                        </motion.div>
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5, duration: 1 }}
+                    className="text-2xl md:text-4xl font-light text-gray-300 mb-10 h-16"
+                >
+                    I build beautiful and functional web experiences.
+                </motion.div>
 
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.5, duration: 1 }}
-                            className="text-2xl md:text-4xl font-light text-gray-300 mb-10 h-16"
-                        >
-                            I build beautiful and functional web experiences.
-                        </motion.div>
-
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.8, duration: 0.5 }}
-                        >
-                            <button
-                                onClick={scrollToProjects}
-                                className="group relative px-8 py-4 bg-transparent overflow-hidden rounded-full border border-glass-stroke text-white font-semibold transition-all duration-300 hover:scale-105 hover:border-neon-blue hover:shadow-[0_0_20px_rgba(0,212,255,0.5)]"
-                            >
-                                <span className="relative z-10 flex items-center justify-center gap-2">
-                                    View My Work <span className="group-hover:translate-x-1 transition-transform">↓</span>
-                                </span>
-                                <div className="absolute inset-0 bg-neon-blue opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-                            </button>
-                        </motion.div>
-                    </div>
-
-                    {/* Scroll Indicator */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 1.5, duration: 1 }}
-                        className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.8, duration: 0.5 }}
+                >
+                    <button
+                        onClick={scrollToProjects}
+                        className="group relative px-8 py-4 bg-transparent overflow-hidden rounded-full border border-glass-stroke text-white font-semibold transition-all duration-300 hover:scale-105 hover:border-neon-blue hover:shadow-[0_0_20px_rgba(0,212,255,0.5)]"
                     >
-                        <div className="w-[1px] h-24 bg-gradient-to-b from-transparent via-white to-transparent opacity-50"></div>
-                    </motion.div>
+                        <span className="relative z-10 flex items-center justify-center gap-2">
+                            View My Work <span className="group-hover:translate-x-1 transition-transform">↓</span>
+                        </span>
+                        <div className="absolute inset-0 bg-neon-blue opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                    </button>
+                </motion.div>
+            </div>
 
-                </section>
-            );
-        };
+            {/* Scroll Indicator */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.5, duration: 1 }}
+                className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
+            >
+                <div className="w-[1px] h-24 bg-gradient-to-b from-transparent via-white to-transparent opacity-50"></div>
+            </motion.div>
 
-    export default Hero;
+        </section>
+    );
+};
+
+export default Hero;

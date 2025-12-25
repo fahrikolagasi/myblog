@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { FaCode, FaPaintBrush, FaMobileAlt, FaSearch, FaInstagram, FaWhatsapp, FaLinkedinIn, FaGithub, FaEnvelope } from 'react-icons/fa';
+import { doc, setDoc, onSnapshot } from "firebase/firestore";
+import { db } from "../firebaseConfig";
 
-// Default Data (Fallback if localStorage is empty)
+// Default Data (Fallback / Initial Setup)
 const defaultData = {
     profile: {
         name: "[Ad Soyad]",
@@ -58,79 +60,111 @@ const SiteContext = createContext();
 export const useSiteContent = () => useContext(SiteContext);
 
 export const SiteProvider = ({ children }) => {
-    // Initialize state from localStorage or default
-    const [content, setContent] = useState(() => {
-        const saved = localStorage.getItem('siteContent');
-        return saved ? JSON.parse(saved) : defaultData;
-    });
+    // Start with defaultData to prevent UI flicker, then update from DB
+    const [content, setContent] = useState(defaultData);
+    const [loading, setLoading] = useState(true);
 
-    // Save to localStorage whenever content changes
+    // Sync with Firestore Real-time
     useEffect(() => {
-        localStorage.setItem('siteContent', JSON.stringify(content));
-    }, [content]);
+        const docRef = doc(db, "siteContent", "main");
 
-    // Data Migration: Remove WhatsApp (optional)
-    useEffect(() => {
-        const hasWhatsApp = content.socials.some(s => s.platform === 'WhatsApp');
-        if (hasWhatsApp) {
-            setContent(prev => ({
-                ...prev,
-                socials: prev.socials.filter(s => s.platform !== 'WhatsApp')
-            }));
+        const unsubscribe = onSnapshot(docRef, (docSnap) => {
+            if (docSnap.exists()) {
+                // Merge data from DB
+                setContent(docSnap.data());
+            } else {
+                // Initialize DB if empty
+                setDoc(docRef, defaultData);
+                setContent(defaultData);
+            }
+            setLoading(false);
+        }, (error) => {
+            console.error("Firestore sync error:", error);
+            // Fallback to localStorage if DB fails? Or just keep defaultData.
+            // keeping current content is improved resilience.
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    // Helper: Save whole object to Firestore
+    const saveToFirestore = async (newContent) => {
+        try {
+            await setDoc(doc(db, "siteContent", "main"), newContent);
+        } catch (error) {
+            console.error("Error saving to Firestore:", error);
+            alert("Kaydetme sırasında bir hata oluştu! İnternet bağlantınızı kontrol edin.");
         }
-    }, [content.socials]);
+    };
 
-    // Icon Helper
+    // Helper to get Icon component dynamically
     const getIcon = (iconName) => {
         const icons = { FaCode, FaPaintBrush, FaMobileAlt, FaSearch, FaInstagram, FaWhatsapp, FaLinkedinIn, FaGithub, FaEnvelope };
         const IconComponent = icons[iconName];
         return IconComponent ? <IconComponent /> : <FaCode />;
     };
 
-    // --- Actions (No Translation) ---
+    // --- Actions (Updates Firestore directly) ---
 
+    // 1. Profile
     const updateProfile = (newProfile) => {
-        setContent(prev => ({ ...prev, profile: { ...prev.profile, ...newProfile } }));
+        const updated = { ...content, profile: { ...content.profile, ...newProfile } };
+        // Optimistic update for immediate feedback (though onSnapshot is fast)
+        setContent(updated);
+        saveToFirestore(updated);
     };
 
+    // 2. Bio
     const updateBio = (newBio) => {
-        setContent(prev => ({ ...prev, bio: { ...prev.bio, ...newBio } }));
+        const updated = { ...content, bio: { ...content.bio, ...newBio } };
+        setContent(updated);
+        saveToFirestore(updated);
     };
 
+    // 3. Services - Add
     const addService = (service) => {
-        setContent(prev => ({ ...prev, services: [...prev.services, { ...service, id: Date.now() }] }));
+        const newService = { ...service, id: Date.now() };
+        const updated = { ...content, services: [...content.services, newService] };
+        setContent(updated);
+        saveToFirestore(updated);
     };
 
+    // 3. Services - Update
     const updateService = (id, updatedService) => {
-        setContent(prev => ({
-            ...prev,
-            services: prev.services.map(s => s.id === id ? { ...s, ...updatedService } : s)
-        }));
+        const updatedServices = content.services.map(s => s.id === id ? { ...s, ...updatedService } : s);
+        const updated = { ...content, services: updatedServices };
+        setContent(updated);
+        saveToFirestore(updated);
     };
 
+    // 3. Services - Delete
     const deleteService = (id) => {
-        setContent(prev => ({
-            ...prev,
-            services: prev.services.filter(s => s.id !== id)
-        }));
+        const updatedServices = content.services.filter(s => s.id !== id);
+        const updated = { ...content, services: updatedServices };
+        setContent(updated);
+        saveToFirestore(updated);
     };
 
+    // 4. Socials
     const updateSocial = (id, updates) => {
-        setContent(prev => ({
-            ...prev,
-            socials: prev.socials.map(s => s.id === id ? { ...s, ...updates } : s)
-        }));
+        const updatedSocials = content.socials.map(s => s.id === id ? { ...s, ...updates } : s);
+        const updated = { ...content, socials: updatedSocials };
+        setContent(updated);
+        saveToFirestore(updated);
     };
 
+    // Reset
     const resetToDefaults = () => {
         if (window.confirm("Tüm değişiklikler silinecek ve varsayılanlara dönülecek. Emin misiniz?")) {
             setContent(defaultData);
+            saveToFirestore(defaultData);
         }
     };
 
     return (
         <SiteContext.Provider value={{
             content,
+            loading,
             getIcon,
             updateProfile,
             updateBio,

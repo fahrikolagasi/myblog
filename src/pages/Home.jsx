@@ -8,6 +8,7 @@ import SocialGrid from '../components/Bio/SocialGrid';
 import CodeRain from '../components/UI/CodeRain';
 import SongOfTheDay from '../components/SongOfTheDay';
 import ProjectsSection from '../components/Bio/ProjectsSection';
+import ChatBot from '../components/ChatBot/ChatBot';
 
 const Home = () => {
     return (
@@ -19,6 +20,7 @@ const Home = () => {
 
             {/* UI Layer */}
             <ThemeToggleButton />
+            <ChatBot />
 
             {/* Main Content: Added backdrop-blur for readability over the rain */}
             <main className="relative z-10 flex flex-col items-center w-full max-w-xl mx-auto pt-10">

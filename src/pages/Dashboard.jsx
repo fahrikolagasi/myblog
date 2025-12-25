@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSiteContent } from '../context/SiteContext';
-import { FaUser, FaInfoCircle, FaTools, FaShareAlt, FaSignOutAlt, FaPlus, FaTrash, FaSave, FaSpotify, FaSearch, FaCheck, FaMusic, FaProjectDiagram, FaEnvelope, FaPaperPlane } from 'react-icons/fa';
+import { FaUser, FaInfoCircle, FaTools, FaShareAlt, FaSignOutAlt, FaPlus, FaTrash, FaSave, FaSpotify, FaSearch, FaCheck, FaMusic, FaProjectDiagram, FaEnvelope, FaPaperPlane, FaLightbulb, FaComments } from 'react-icons/fa';
 import { doc, getDoc, setDoc, collection, addDoc, deleteDoc, onSnapshot, query, orderBy } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../firebaseConfig";
 import { searchTracks } from '../services/spotify';
+import ChatHistory from '../components/ChatBot/ChatHistory';
 
 // 1. Profile Editor Component (Defined OUTSIDE to prevent re-renders)
 const ProfileEditor = ({ initialData, onSave }) => {
@@ -850,6 +851,113 @@ const MessagesViewer = () => {
     );
 };
 
+// 8. Recommendations Editor Component
+const RecommendationsEditor = () => {
+    const [recommendations, setRecommendations] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const q = query(collection(db, "song_recommendations"), orderBy("createdAt", "desc"));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setRecommendations(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+            setLoading(false);
+        });
+        return () => unsubscribe();
+    }, []);
+
+    const handlePublish = async (rec) => {
+        if (window.confirm(`${rec.suggestedBy} tarafından önerilen "${rec.songTitle}" şarkısını yayınlamak istiyor musunuz?`)) {
+            try {
+                // 1. Set as Song of the Day
+                await setDoc(doc(db, "metadata", "songOfTheDay"), {
+                    title: rec.songTitle,
+                    artist: rec.artist,
+                    albumImageUrl: rec.albumImageUrl,
+                    songUrl: rec.songUrl,
+                    previewUrl: rec.previewUrl || ''
+                });
+
+                // 2. Delete recommendation (or mark as done)
+                await deleteDoc(doc(db, "song_recommendations", rec.id));
+
+                alert("Şarkı yayına alındı!");
+            } catch (error) {
+                console.error("Error publishing song:", error);
+                alert("Hata oluştu.");
+            }
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (window.confirm("Bu öneriyi silmek istediğinize emin misiniz?")) {
+            try {
+                await deleteDoc(doc(db, "song_recommendations", id));
+            } catch (error) {
+                console.error("Error deleting:", error);
+            }
+        }
+    };
+
+    if (loading) return <div>Yükleniyor...</div>;
+
+    return (
+        <div className="space-y-6">
+            <h2 className="text-xl font-bold flex items-center gap-2">
+                <FaLightbulb className="text-indigo-500" /> Şarkı Önerileri ({recommendations.length})
+            </h2>
+
+            {recommendations.length === 0 && (
+                <div className="text-center py-12 text-zinc-500 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg border border-dashed border-zinc-200 dark:border-zinc-700">
+                    Henüz şarkı önerisi gelmemiş.
+                </div>
+            )}
+
+            <div className="grid grid-cols-1 gap-4">
+                {recommendations.map(rec => (
+                    <div key={rec.id} className="bg-white dark:bg-zinc-800 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                        <img src={rec.albumImageUrl} alt="" className="w-16 h-16 rounded-md shadow-sm object-cover" />
+
+                        <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                                <span className="px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-[10px] font-bold uppercase rounded-full tracking-wider">
+                                    ÖNEREN: {rec.suggestedBy}
+                                </span>
+                            </div>
+                            <h3 className="font-bold text-zinc-900 dark:text-zinc-100 truncate">{rec.songTitle}</h3>
+                            <p className="text-sm text-zinc-500 truncate">{rec.artist}</p>
+                        </div>
+
+                        <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                            <a
+                                href={rec.songUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-2 text-zinc-400 hover:text-green-500 transition-colors"
+                                title="Spotify'da Dinle"
+                            >
+                                <FaSpotify size={20} />
+                            </a>
+                            <button
+                                onClick={() => handlePublish(rec)}
+                                className="flex-1 sm:flex-none px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm whitespace-nowrap"
+                            >
+                                <FaCheck className="inline mr-2" /> Yayınla
+                            </button>
+                            <button
+                                onClick={() => handleDelete(rec.id)}
+                                className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                title="Sil"
+                            >
+                                <FaTrash />
+                            </button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
 const Dashboard = () => {
     const { content, updateProfile, updateBio, addService, deleteService, updateSocial, resetToDefaults } = useSiteContent();
     const { profile, bio, services, socials } = content;
@@ -896,6 +1004,9 @@ const Dashboard = () => {
                         <FaProjectDiagram /> Projeler
                     </button>
                     <div className="h-px bg-zinc-200 dark:bg-zinc-800 my-2"></div>
+                    <button onClick={() => setActiveTab('chat_history')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${activeTab === 'chat_history' ? 'bg-green-600 text-white shadow-md transform translate-x-1' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}>
+                        <FaComments /> Sohbetler
+                    </button>
                     <button onClick={() => setActiveTab('messages')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${activeTab === 'messages' ? 'bg-purple-600 text-white shadow-md transform translate-x-1' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}>
                         <FaEnvelope /> Mesajlar
                     </button>
@@ -904,6 +1015,9 @@ const Dashboard = () => {
                     </button>
                     <button onClick={() => setActiveTab('spotify')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${activeTab === 'spotify' ? 'bg-green-600 text-white shadow-md transform translate-x-1' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}>
                         <FaSpotify /> Günün Şarkısı
+                    </button>
+                    <button onClick={() => setActiveTab('recommendations')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${activeTab === 'recommendations' ? 'bg-indigo-600 text-white shadow-md transform translate-x-1' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}>
+                        <FaLightbulb /> Öneriler
                     </button>
                 </nav>
 
@@ -925,9 +1039,11 @@ const Dashboard = () => {
                     {activeTab === 'bio' && <BioEditor initialData={bio} onSave={handleBioSave} />}
                     {activeTab === 'services' && <ServicesEditor services={services} onAdd={addService} onDelete={deleteService} />}
                     {activeTab === 'projects' && <ProjectsEditor />}
+                    {activeTab === 'chat_history' && <ChatHistory />}
                     {activeTab === 'messages' && <MessagesViewer />}
                     {activeTab === 'socials' && <SocialsEditor socials={socials} onUpdate={updateSocial} />}
                     {activeTab === 'spotify' && <SpotifyEditor />}
+                    {activeTab === 'recommendations' && <RecommendationsEditor />}
                 </div>
 
 
