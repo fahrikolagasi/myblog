@@ -45,7 +45,13 @@ const SocialCard = ({ icon, label, href, color, glowColor, delay }) => {
                 </span>
                 <div className="h-4 overflow-hidden relative">
                     <span className="text-[10px] text-zinc-500 uppercase tracking-widest group-hover:text-[color:var(--neon-color)] transition-colors block mt-1">
-                        {label === 'Mail' ? 'İLETİŞİME GEÇ' : 'TAKİP ET'}
+                        {(() => {
+                            const l = label.toLowerCase();
+                            if (l.includes('mail') || l.includes('gmail')) return 'İLETİŞİME GEÇ';
+                            if (l.includes('linkedin')) return 'BAĞLANTI KUR';
+                            if (l.includes('github')) return 'PROJELERİME GÖZ AT';
+                            return 'TAKİP ET';
+                        })()}
                     </span>
                 </div>
             </div>

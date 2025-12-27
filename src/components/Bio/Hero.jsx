@@ -69,9 +69,6 @@ const Hero = () => {
                     <p className="text-lg italic font-serif text-[#c0caf5] dark:text-zinc-700 leading-relaxed">
                         "{profile.quote}"
                     </p>
-                    <footer className="mt-3 text-xs font-bold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
-                        — {profile.quoteAuthor}
-                    </footer>
                 </blockquote>
 
             </motion.div>

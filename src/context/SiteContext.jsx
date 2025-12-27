@@ -6,53 +6,20 @@ import { db } from "../firebaseConfig";
 // Default Data (Fallback / Initial Setup)
 const defaultData = {
     profile: {
-        name: "[Ad Soyad]",
-        title: "Creative Developer",
-        location: "İstanbul, Turkey",
-        image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=1000&auto=format&fit=crop",
-        quote: "Tasarım sadece nasıl göründüğü değil, nasıl çalıştığıdır.",
-        quoteAuthor: "Steve Jobs"
+        name: "",
+        title: "",
+        location: "",
+        image: "",
+        quote: "",
+        quoteAuthor: ""
     },
     bio: {
-        text1: "Merhaba, ben [Adınız]. Teknoloji ve tasarımın kesişim noktasında, kullanıcı deneyimini merkeze alan dijital ürünler geliştiriyorum.",
-        text2: "Yazılım dünyasına olan merakım çocukluk yıllarıma dayanıyor. Bugün, modern web teknolojileri ile çözümler üretiyor ve hikayesi olan tasarımlar yapıyorum.",
+        about: "",
+        mission: "",
+        education: []
     },
-    services: [
-        {
-            id: 1,
-            iconName: "FaCode",
-            title: "Web Geliştirme",
-            short: "Modern ve hızlı web siteleri.",
-            desc: "React, Next.js ve modern frontend teknolojileri kullanarak, SEO uyumlu, hızlı açılan ve güvenli web siteleri geliştiriyorum.",
-        },
-        {
-            id: 2,
-            iconName: "FaPaintBrush",
-            title: "UI/UX Tasarım",
-            short: "Kullanıcı dostu arayüzler.",
-            desc: "Kullanıcı deneyimini merkeze alan, estetik ve fonksiyonel arayüz tasarımları. Figma kullanarak prototipleme.",
-        },
-        {
-            id: 3,
-            iconName: "FaMobileAlt",
-            title: "Mobil Uygulama",
-            short: "iOS ve Android uyumlu çözümler.",
-            desc: "React Native teknolojisi ile tek kod tabanından hem iOS hem Android için native performansında çalışan mobil uygulamalar.",
-        },
-        {
-            id: 4,
-            iconName: "FaSearch",
-            title: "SEO Optimizasyon",
-            short: "Arama motorlarında üst sıralar.",
-            desc: "Sitenizin Google ve diğer arama motorlarında üst sıralarda yer alması için teknik SEO, içerik optimizasyonu ve performans iyileştirmeleri.",
-        }
-    ],
-    socials: [
-        { id: 1, platform: "Instagram", url: "https://instagram.com", iconName: "FaInstagram", color: "#E1306C", show: true, image: "" },
-        { id: 3, platform: "LinkedIn", url: "https://linkedin.com", iconName: "FaLinkedinIn", color: "#0077B5", show: true, image: "" },
-        { id: 4, platform: "GitHub", url: "https://github.com", iconName: "FaGithub", color: "#333", show: true, image: "" },
-        { id: 5, platform: "Email", url: "mailto:hello@example.com", iconName: "FaEnvelope", color: "#EA4335", show: true, image: "" }
-    ]
+    services: [],
+    socials: []
 };
 
 const SiteContext = createContext();

@@ -20,14 +20,31 @@ export const getChatResponse = async (history, userMessage, systemInstruction = 
             return "Üzgünüm, şu an bağlantımda bir sorun var (API Anahtarı eksik). Lütfen yönetici ile iletişime geçin.";
         }
 
-        // Switching to 'gemini-flash-latest' as it appears in the user's available list 
-        // and 'gemini-2.0-flash' gave a quota error (limit 0).
-        const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+        // Switching to 'gemini-2.5-flash-lite' as it is the only working model confirmed by test script.
+        const model = genAI.getGenerativeModel({
+            model: "gemini-2.5-flash-lite"
+        });
+
+        // Manual System Prompt Injection (Universal Compatibility)
+        // Some versions of Gemini Pro specific APIs don't support the 'systemInstruction' param well.
+        // We manually inject it as the first piece of context to ensure the bot obeys it.
+        const effectiveHistory = [
+            {
+                role: "user",
+                parts: [{ text: systemInstruction || "Sen yardımsever bir asistansın." }]
+            },
+            {
+                role: "model",
+                parts: [{ text: "Anlaşıldı. Belirttiğin kurallara ve role göre cevap vereceğim." }]
+            },
+            ...history
+        ];
 
         const chat = model.startChat({
-            history: history,
+            history: effectiveHistory,
             generationConfig: {
-                maxOutputTokens: 250,
+                maxOutputTokens: 1000,
+                temperature: 0.7,
             },
         });
 

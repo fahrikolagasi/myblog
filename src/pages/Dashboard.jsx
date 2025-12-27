@@ -4,7 +4,8 @@ import { useSiteContent } from '../context/SiteContext';
 import { FaUser, FaInfoCircle, FaTools, FaShareAlt, FaSignOutAlt, FaPlus, FaTrash, FaSave, FaSpotify, FaSearch, FaCheck, FaMusic, FaProjectDiagram, FaEnvelope, FaPaperPlane, FaLightbulb, FaComments } from 'react-icons/fa';
 import { doc, getDoc, setDoc, collection, addDoc, deleteDoc, onSnapshot, query, orderBy } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db, storage } from "../firebaseConfig";
+import { db, storage, auth } from "../firebaseConfig";
+import { signOut } from "firebase/auth";
 import { searchTracks } from '../services/spotify';
 import ChatHistory from '../components/ChatBot/ChatHistory';
 
@@ -12,7 +13,6 @@ import ChatHistory from '../components/ChatBot/ChatHistory';
 const ProfileEditor = ({ initialData, onSave }) => {
     const [formData, setFormData] = useState(initialData);
 
-    // Sync with initialData if it changes externally (e.g. reset)
     useEffect(() => {
         setFormData(initialData);
     }, [initialData]);
@@ -23,92 +23,100 @@ const ProfileEditor = ({ initialData, onSave }) => {
     };
 
     return (
-        <div className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold">Profil Ayarları</h2>
+        <div className="space-y-6">
+            <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-4">
+                <div>
+                    <h2 className="text-xl font-bold text-zinc-900 dark:text-white">Profil Ayarları</h2>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Sitenizin ana kimlik bilgilerini buradan yönetin.</p>
+                </div>
                 <button
                     onClick={() => onSave(formData)}
-                    className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium text-sm shadow-sm"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl transition-all font-medium text-sm shadow-lg shadow-green-900/20 hover:shadow-green-900/40"
                 >
-                    <FaSave /> Güncelle
+                    <FaSave /> Kaydet
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="col-span-1 md:col-span-2 space-y-2">
-                    <h3 className="font-bold text-sm text-zinc-900 dark:text-white border-b border-zinc-200 dark:border-zinc-700 pb-2">Temel Bilgiler</h3>
-                </div>
-                <div>
-                    <label className="block text-xs uppercase text-zinc-500 mb-1">Ad Soyad (Ortak)</label>
-                    <input
-                        name="name"
-                        className="w-full p-2 rounded bg-zinc-50 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                        value={formData.name}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label className="block text-xs uppercase text-zinc-500 mb-1">Profil Resmi URL</label>
-                    <input
-                        name="image"
-                        className="w-full p-2 rounded bg-zinc-50 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                        value={formData.image}
-                        onChange={handleChange}
-                    />
+            <div className="grid grid-cols-1 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Ad Soyad</label>
+                        <div className="relative">
+                            <input
+                                name="name"
+                                className="w-full pl-10 pr-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-green-500 focus:ring-1 focus:ring-green-500/50 outline-none transition-all text-sm font-medium"
+                                value={formData.name}
+                                onChange={handleChange}
+                                placeholder="Adınız Soyadınız"
+                            />
+                            <FaUser className="absolute left-3.5 top-3.5 text-zinc-400 text-sm" />
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Ünvan</label>
+                        <input
+                            name="title"
+                            className="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-green-500 focus:ring-1 focus:ring-green-500/50 outline-none transition-all text-sm"
+                            value={formData.title}
+                            onChange={handleChange}
+                            placeholder="Örn: Yazılım Mühendisi"
+                        />
+                    </div>
                 </div>
 
-                {/* TURKISH SECTION */}
-                <div className="col-span-1 md:col-span-2 mt-4 space-y-2">
-                    <h3 className="font-bold text-xs flex items-center gap-2 text-zinc-800 dark:text-zinc-200">
-                        <img src="https://flagcdn.com/w20/tr.png" className="w-4 h-auto" /> Türkçe İçerik
-                    </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Konum</label>
+                        <input
+                            name="location"
+                            className="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-green-500 focus:ring-1 focus:ring-green-500/50 outline-none transition-all text-sm"
+                            value={formData.location}
+                            onChange={handleChange}
+                            placeholder="İl, Ülke"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Profil Fotoğrafı URL</label>
+                        <input
+                            name="image"
+                            className="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-green-500 focus:ring-1 focus:ring-green-500/50 outline-none transition-all text-sm"
+                            value={formData.image}
+                            onChange={handleChange}
+                            placeholder="https://..."
+                        />
+                    </div>
                 </div>
-                <div>
-                    <label className="block text-xs uppercase text-zinc-500 mb-1">Ünvan (TR)</label>
-                    <input
-                        name="title"
-                        className="w-full p-2 rounded bg-zinc-50 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                        value={formData.title}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label className="block text-xs uppercase text-zinc-500 mb-1">Konum (TR)</label>
-                    <input
-                        name="location"
-                        className="w-full p-2 rounded bg-zinc-50 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                        value={formData.location}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className="col-span-1 md:col-span-2">
-                    <label className="block text-xs uppercase text-zinc-500 mb-1">Özlü Söz (TR)</label>
+
+                <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Özlü Söz / Slogan</label>
                     <textarea
                         name="quote"
-                        className="w-full p-2 rounded bg-zinc-50 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all h-16"
+                        className="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-green-500 focus:ring-1 focus:ring-green-500/50 outline-none transition-all text-sm resize-none h-24"
                         value={formData.quote}
                         onChange={handleChange}
+                        placeholder="Sizi yansıtan kısa bir söz..."
                     />
-                </div>
-
-
-                {/* AUTO-TRANSLATION NOTICE */}
-                <div className="col-span-1 md:col-span-2 mt-4 space-y-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-100 dark:border-blue-800">
-                    <p className="text-xs text-blue-600 dark:text-blue-300 flex items-center gap-2">
-                        <FaInfoCircle /> İngilizce çeviriler kaydettiğinizde otomatik olarak oluşturulacaktır.
-                    </p>
                 </div>
             </div>
         </div>
     );
 };
 
-// 2. Bio Editor Component
+// 2. Bio Editor Component (UPDATED)
 const BioEditor = ({ initialData, onSave }) => {
-    const [formData, setFormData] = useState(initialData);
+    // Default structure fallback
+    const defaultBio = {
+        about: '',
+        mission: '',
+        education: []
+    };
+
+    // Merge provided initialData with defaults to handle old data format if needed
+    const [formData, setFormData] = useState({ ...defaultBio, ...initialData });
+    const [newEdu, setNewEdu] = useState({ year: '', school: '', degree: '' });
 
     useEffect(() => {
-        setFormData(initialData);
+        setFormData({ ...defaultBio, ...initialData });
     }, [initialData]);
 
     const handleChange = (e) => {
@@ -116,53 +124,126 @@ const BioEditor = ({ initialData, onSave }) => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    // Education Actions
+    const addEducation = () => {
+        if (!newEdu.school) return;
+        const newItem = { id: Date.now(), ...newEdu };
+        setFormData(prev => ({
+            ...prev,
+            education: [...(prev.education || []), newItem]
+        }));
+        setNewEdu({ year: '', school: '', degree: '' });
+    };
+
+    const removeEducation = (id) => {
+        setFormData(prev => ({
+            ...prev,
+            education: prev.education.filter(e => e.id !== id)
+        }));
+    };
+
     return (
-        <div className="space-y-4">
+        <div className="space-y-6">
             <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold">Biyografi Düzenle</h2>
+                <div>
+                    <h2 className="text-xl font-bold text-zinc-900 dark:text-white">Biyografi & Eğitim</h2>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Hakkımda, misyon ve eğitim detaylarınızı buradan düzenleyin.</p>
+                </div>
                 <button
                     onClick={() => onSave(formData)}
-                    className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium text-sm shadow-sm"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl transition-all font-medium text-sm shadow-lg shadow-green-900/20 hover:shadow-green-900/40"
                 >
                     <FaSave /> Güncelle
                 </button>
             </div>
 
-            {/* TR Bio ONLY - EN auto-generated */}
-            <div className="space-y-4 border p-4 rounded-lg border-zinc-200 dark:border-zinc-800">
-                <div className="flex justify-between items-center">
-                    <h3 className="font-bold text-xs flex items-center gap-2 text-zinc-800 dark:text-zinc-200">
-                        <img src="https://flagcdn.com/w20/tr.png" className="w-4 h-auto" /> Türkçe Biyografi
+            {/* SECTIONS */}
+            <div className="space-y-6">
+
+                {/* 1. About */}
+                <div className="bg-white dark:bg-zinc-900/50 p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+                    <h3 className="font-bold text-sm mb-3 text-zinc-900 dark:text-white flex items-center gap-2">
+                        <FaUser className="text-blue-500" /> Hakkımda
                     </h3>
-                    <span className="text-[10px] text-zinc-400 italic">İngilizce çeviri otomatiktir.</span>
-                </div>
-                <div>
-                    <label className="block text-xs uppercase text-zinc-500 mb-1">Hakkımda Metni</label>
                     <textarea
-                        name="aboutText"
-                        className="w-full h-24 p-2 rounded bg-zinc-50 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                        value={formData.aboutText}
+                        name="about"
+                        placeholder="Kendinizi tanıtın..."
+                        className="w-full h-32 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
+                        value={formData.about || ''}
                         onChange={handleChange}
                     />
                 </div>
-                <div>
-                    <label className="block text-xs uppercase text-zinc-500 mb-1">Paragraf 1</label>
+
+                {/* 2. Mission */}
+                <div className="bg-white dark:bg-zinc-900/50 p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+                    <h3 className="font-bold text-sm mb-3 text-zinc-900 dark:text-white flex items-center gap-2">
+                        <FaLightbulb className="text-purple-500" /> Misyon
+                    </h3>
                     <textarea
-                        name="text1"
-                        className="w-full h-24 p-2 rounded bg-zinc-50 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                        value={formData.text1}
+                        name="mission"
+                        placeholder="Misyonunuz nedir?"
+                        className="w-full h-24 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all resize-none"
+                        value={formData.mission || ''}
                         onChange={handleChange}
                     />
                 </div>
-                <div>
-                    <label className="block text-xs uppercase text-zinc-500 mb-1">Paragraf 2</label>
-                    <textarea
-                        name="text2"
-                        className="w-full h-24 p-2 rounded bg-zinc-50 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                        value={formData.text2}
-                        onChange={handleChange}
-                    />
+
+                {/* 3. Education List */}
+                <div className="bg-white dark:bg-zinc-900/50 p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+                    <h3 className="font-bold text-sm mb-3 text-zinc-900 dark:text-white flex items-center gap-2">
+                        <span className="text-green-500">🎓</span> Eğitim Geçmişi
+                    </h3>
+
+                    {/* List */}
+                    <div className="space-y-2 mb-4">
+                        {(formData.education || []).map(edu => (
+                            <div key={edu.id} className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-xl border border-zinc-200 dark:border-zinc-800">
+                                <div>
+                                    <div className="font-bold text-sm text-zinc-900 dark:text-white">{edu.school}</div>
+                                    <div className="text-xs text-zinc-500 dark:text-zinc-400">{edu.degree} • {edu.year}</div>
+                                </div>
+                                <button
+                                    onClick={() => removeEducation(edu.id)}
+                                    className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                >
+                                    <FaTrash size={12} />
+                                </button>
+                            </div>
+                        ))}
+                        {(formData.education || []).length === 0 && (
+                            <div className="text-zinc-400 dark:text-zinc-600 text-xs italic text-center py-4 border border-dashed border-zinc-300 dark:border-zinc-700 rounded-xl">Henüz eğitim bilgisi eklenmedi.</div>
+                        )}
+                    </div>
+
+                    {/* Add Form */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 bg-zinc-50 dark:bg-zinc-900/30 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800">
+                        <input
+                            placeholder="Okul Adı"
+                            className="p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white placeholder-zinc-400 text-sm focus:outline-none focus:border-green-500"
+                            value={newEdu.school}
+                            onChange={e => setNewEdu({ ...newEdu, school: e.target.value })}
+                        />
+                        <input
+                            placeholder="Bölüm / Derece"
+                            className="p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white placeholder-zinc-400 text-sm focus:outline-none focus:border-green-500"
+                            value={newEdu.degree}
+                            onChange={e => setNewEdu({ ...newEdu, degree: e.target.value })}
+                        />
+                        <input
+                            placeholder="Yıl (2020 - 2024)"
+                            className="p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white placeholder-zinc-400 text-sm focus:outline-none focus:border-green-500"
+                            value={newEdu.year}
+                            onChange={e => setNewEdu({ ...newEdu, year: e.target.value })}
+                        />
+                        <button
+                            onClick={addEducation}
+                            className="col-span-1 md:col-span-3 mt-1 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg py-2 text-sm font-bold transition-colors"
+                        >
+                            <FaPlus className="inline mr-1" size={10} /> Ekle
+                        </button>
+                    </div>
                 </div>
+
             </div>
         </div>
     );
@@ -170,7 +251,6 @@ const BioEditor = ({ initialData, onSave }) => {
 
 // 3. Services Editor Component
 const ServicesEditor = ({ services, onAdd, onDelete }) => {
-    // Only 'new service' inputs need local state here, list comes from props
     const [newService, setNewService] = useState({
         title: '',
         short: '',
@@ -191,83 +271,97 @@ const ServicesEditor = ({ services, onAdd, onDelete }) => {
     };
 
     return (
-        <div className="space-y-6">
-            <h2 className="text-xl font-bold mb-4">Hizmetler</h2>
+        <div className="space-y-8">
+            <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-4">
+                <div>
+                    <h2 className="text-xl font-bold text-zinc-900 dark:text-white">Hizmetler</h2>
+                    <p className="text-xs text-zinc-500 mt-1">Sunduğunuz hizmetleri buradan yönetin.</p>
+                </div>
+            </div>
 
             {/* List */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {services.map(s => (
-                    <div key={s.id} className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 relative group shadow-sm hover:shadow-md transition-shadow">
+                    <div key={s.id} className="p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 relative group transition-all hover:border-green-500/30 hover:shadow-lg hover:shadow-green-900/10">
                         <button
                             onClick={() => onDelete(s.id)}
-                            className="absolute top-2 right-2 text-zinc-400 hover:text-red-500 transition-colors p-1"
+                            className="absolute top-4 right-4 text-zinc-400 hover:text-red-500 transition-colors p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg opacity-0 group-hover:opacity-100"
                             title="Hizmeti Sil"
                         >
-                            <FaTrash />
+                            <FaTrash size={14} />
                         </button>
-                        <h3 className="font-bold pr-6 text-zinc-800 dark:text-zinc-100">{s.title}</h3>
-                        <p className="text-xs text-zinc-500 mt-1 line-clamp-2">{s.short}</p>
-                        <div className="mt-2 pt-2 border-t border-zinc-100 dark:border-zinc-700 flex justify-between items-center">
-                            <div className="flex items-center gap-1">
-                                <span className="text-[10px] bg-blue-100 text-blue-700 px-1 rounded">EN</span>
-                                <span className="text-xs text-zinc-400 truncate max-w-[150px]">{s.title_en || 'Çevriliyor...'}</span>
-                            </div>
+                        <div className="pr-8">
+                            <h3 className="font-bold text-zinc-900 dark:text-white mb-1">{s.title}</h3>
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2">{s.short}</p>
                         </div>
                     </div>
                 ))}
             </div>
 
             {/* Add New */}
-            <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 mt-6">
-                <div className="flex justify-between items-center mb-3">
-                    <h3 className="font-bold flex items-center gap-2 text-blue-800 dark:text-blue-100"> <FaPlus /> Yeni Hizmet Ekle</h3>
-                    <span className="text-[10px] text-blue-600 dark:text-blue-300 opacity-70">Otomatik Çeviri Aktif</span>
+            <div className="p-6 rounded-2xl bg-zinc-50 dark:bg-zinc-900/30 border border-zinc-200 dark:border-zinc-800">
+                <div className="mb-6">
+                    <h3 className="font-bold flex items-center gap-2 text-zinc-900 dark:text-white">
+                        <div className="w-8 h-8 rounded-lg bg-blue-600/20 text-blue-500 flex items-center justify-center">
+                            <FaPlus size={12} />
+                        </div>
+                        Yeni Hizmet Ekle
+                    </h3>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 mb-4">
-                    {/* TR INPUTS ONLY */}
+                <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Hizmet Başlığı</label>
+                            <input
+                                placeholder="Örn: Web Tasarım"
+                                className="w-full px-4 py-3 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all text-sm"
+                                value={newService.title}
+                                onChange={e => setNewService({ ...newService, title: e.target.value })}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Kısa Açıklama</label>
+                            <input
+                                placeholder="Kısa özet..."
+                                className="w-full px-4 py-3 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all text-sm"
+                                value={newService.short}
+                                onChange={e => setNewService({ ...newService, short: e.target.value })}
+                            />
+                        </div>
+                    </div>
+
                     <div className="space-y-2">
-                        <input
-                            placeholder="Başlık (Örn: Web Tasarım)"
-                            className="w-full p-2 rounded border border-blue-200 dark:border-blue-700 bg-white dark:bg-zinc-900 focus:ring-2 focus:ring-blue-500 outline-none"
-                            value={newService.title}
-                            onChange={e => setNewService({ ...newService, title: e.target.value })}
-                        />
-                        <input
-                            placeholder="Kısa Açıklama"
-                            className="w-full p-2 rounded border border-blue-200 dark:border-blue-700 bg-white dark:bg-zinc-900 focus:ring-2 focus:ring-blue-500 outline-none"
-                            value={newService.short}
-                            onChange={e => setNewService({ ...newService, short: e.target.value })}
-                        />
+                        <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Detaylı Açıklama</label>
                         <textarea
-                            placeholder="Detaylı Açıklama"
-                            className="w-full p-2 rounded border border-blue-200 dark:border-blue-700 bg-white dark:bg-zinc-900 focus:ring-2 focus:ring-blue-500 outline-none resize-none h-20"
+                            placeholder="Hizmet detayları..."
+                            className="w-full px-4 py-3 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all text-sm resize-none h-24"
                             value={newService.desc}
                             onChange={e => setNewService({ ...newService, desc: e.target.value })}
                         />
                     </div>
-                </div>
 
-                <div className="space-y-2">
-                    <span className="text-xs font-bold text-zinc-500">İKON</span>
-                    <select
-                        className="w-full p-2 rounded border border-blue-200 dark:border-blue-700 bg-white dark:bg-zinc-900 focus:ring-2 focus:ring-blue-500 outline-none"
-                        value={newService.iconName}
-                        onChange={e => setNewService({ ...newService, iconName: e.target.value })}
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">İkon Seçimi</label>
+                        <select
+                            className="w-full px-4 py-3 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all text-sm"
+                            value={newService.iconName}
+                            onChange={e => setNewService({ ...newService, iconName: e.target.value })}
+                        >
+                            <option value="FaCode">Kod (FaCode)</option>
+                            <option value="FaPaintBrush">Tasarım (FaPaintBrush)</option>
+                            <option value="FaMobileAlt">Mobil (FaMobileAlt)</option>
+                            <option value="FaSearch">SEO (FaSearch)</option>
+                        </select>
+                    </div>
+
+                    <button
+                        onClick={handleAdd}
+                        className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm transition-colors shadow-lg shadow-blue-900/20 hover:shadow-blue-900/40"
                     >
-                        <option value="FaCode">Kod (FaCode)</option>
-                        <option value="FaPaintBrush">Tasarım (FaPaintBrush)</option>
-                        <option value="FaMobileAlt">Mobil (FaMobileAlt)</option>
-                        <option value="FaSearch">SEO (FaSearch)</option>
-                    </select>
+                        Hizmeti Ekle
+                    </button>
                 </div>
-
-                <button
-                    onClick={handleAdd}
-                    className="w-full mt-4 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 font-medium transition-colors shadow-sm"
-                >
-                    Hizmeti Ekle
-                </button>
             </div>
         </div>
     );
@@ -293,7 +387,7 @@ const SocialsEditor = ({ socials, onUpdate }) => {
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold">Sosyal Medya Linkleri</h2>
+                <h2 className="text-xl font-bold text-zinc-900 dark:text-white">Sosyal Medya Linkleri</h2>
                 <button
                     onClick={handleSave}
                     className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium text-sm shadow-sm"
@@ -303,7 +397,7 @@ const SocialsEditor = ({ socials, onUpdate }) => {
             </div>
             <div className="flex flex-col gap-3">
                 {localSocials.map(link => (
-                    <div key={link.id} className="p-4 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center gap-4">
+                    <div key={link.id} className="p-4 bg-white dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800 shadow-sm flex items-center gap-4">
                         <div className="font-bold text-zinc-700 dark:text-zinc-300 w-24">
                             {link.platform}
                         </div>
@@ -311,7 +405,7 @@ const SocialsEditor = ({ socials, onUpdate }) => {
                             <label className="block text-[10px] uppercase text-zinc-500 mb-1">Profil Linki (URL)</label>
                             <div className="flex gap-2">
                                 <input
-                                    className="w-full p-2 rounded bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                                    className="w-full p-2 rounded bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:ring-2 focus:ring-blue-500 outline-none text-sm"
                                     value={link.url}
                                     onChange={(e) => handleChange(link.id, e.target.value)}
                                     placeholder={`https://${link.platform.toLowerCase()}.com/...`}
@@ -404,7 +498,7 @@ const SpotifyEditor = () => {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold flex items-center gap-2"><FaSpotify className="text-green-500" /> Günün Şarkısı</h2>
+                <h2 className="text-xl font-bold flex items-center gap-2 text-zinc-900 dark:text-white"><FaSpotify className="text-green-500" /> Günün Şarkısı</h2>
                 <button
                     onClick={handleSave}
                     className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium text-sm shadow-sm"
@@ -414,7 +508,7 @@ const SpotifyEditor = () => {
             </div>
 
             {/* API Credentials Section (Collapsible details style) */}
-            <details className="bg-zinc-100 dark:bg-zinc-800 p-3 rounded-lg text-sm">
+            <details className="bg-zinc-100 dark:bg-zinc-900/50 p-3 rounded-lg text-sm border border-zinc-200 dark:border-zinc-800">
                 <summary className="cursor-pointer text-zinc-500 font-medium">Spotify API Ayarları</summary>
                 <div className="mt-3 grid gap-3">
                     <div>
@@ -422,7 +516,7 @@ const SpotifyEditor = () => {
                         <input
                             value={credentials.clientId}
                             onChange={(e) => setCredentials(prev => ({ ...prev, clientId: e.target.value }))}
-                            className="w-full p-2 rounded border dark:bg-zinc-900 border-zinc-300 dark:border-zinc-700"
+                            className="w-full p-2 rounded border bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white placeholder-zinc-400"
                         />
                     </div>
                     <div>
@@ -431,7 +525,7 @@ const SpotifyEditor = () => {
                             value={credentials.clientSecret}
                             onChange={(e) => setCredentials(prev => ({ ...prev, clientSecret: e.target.value }))}
                             type="password"
-                            className="w-full p-2 rounded border dark:bg-zinc-900 border-zinc-300 dark:border-zinc-700"
+                            className="w-full p-2 rounded border bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white placeholder-zinc-400"
                         />
                     </div>
                 </div>
@@ -445,7 +539,7 @@ const SpotifyEditor = () => {
                         onChange={(e) => setSearchQuery(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                         placeholder="Şarkı veya sanatçı ara..."
-                        className="flex-1 p-3 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 focus:ring-2 focus:ring-green-500 outline-none shadow-sm"
+                        className="flex-1 p-3 rounded-lg bg-white dark:bg-zinc-900/50 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:ring-2 focus:ring-green-500 outline-none shadow-sm"
                     />
                     <button
                         onClick={handleSearch}
@@ -467,7 +561,7 @@ const SpotifyEditor = () => {
                             >
                                 <img src={track.album.images[2]?.url} alt="" className="w-10 h-10 rounded object-cover" />
                                 <div className="flex-1 min-w-0">
-                                    <div className="font-bold text-sm truncate">{track.name}</div>
+                                    <div className="font-bold text-sm truncate text-zinc-900 dark:text-white">{track.name}</div>
                                     <div className="text-xs text-zinc-500 truncate">{track.artists.map(a => a.name).join(', ')}</div>
                                 </div>
                                 <FaPlus className="text-zinc-400" />
@@ -478,7 +572,7 @@ const SpotifyEditor = () => {
             </div>
 
             {/* Selected Song Preview */}
-            <div className="bg-white dark:bg-zinc-800 p-6 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
+            <div className="bg-white dark:bg-zinc-900/50 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
                 <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start text-center sm:text-left">
                     <div className="relative group">
                         {songData.albumImageUrl ? (
@@ -491,22 +585,22 @@ const SpotifyEditor = () => {
                     </div>
                     <div className="space-y-2 flex-1 w-full">
                         <div>
-                            <label className="block text-xs uppercase text-zinc-500 mb-1">Şarkı Başlığı</label>
+                            <label className="block text-xs uppercase text-zinc-500 dark:text-zinc-400 mb-1">Şarkı Başlığı</label>
                             <input
                                 name="title"
                                 value={songData.title}
                                 onChange={(e) => setSongData({ ...songData, title: e.target.value })}
-                                className="w-full p-2 bg-transparent border-b border-zinc-200 dark:border-zinc-700 focus:border-green-500 outline-none font-bold text-lg"
+                                className="w-full p-2 bg-transparent border-b border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white focus:border-green-500 outline-none font-bold text-lg"
                                 placeholder="Başlık"
                             />
                         </div>
                         <div>
-                            <label className="block text-xs uppercase text-zinc-500 mb-1">Sanatçı</label>
+                            <label className="block text-xs uppercase text-zinc-500 dark:text-zinc-400 mb-1">Sanatçı</label>
                             <input
                                 name="artist"
                                 value={songData.artist}
                                 onChange={(e) => setSongData({ ...songData, artist: e.target.value })}
-                                className="w-full p-2 bg-transparent border-b border-zinc-200 dark:border-zinc-700 focus:border-green-500 outline-none"
+                                className="w-full p-2 bg-transparent border-b border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white focus:border-green-500 outline-none"
                                 placeholder="Sanatçı"
                             />
                         </div>
@@ -577,11 +671,6 @@ const ProjectsEditor = () => {
         try {
             let finalThumbnailUrl = newProject.customImageUrl;
 
-            // If editing and no new image provided/entered, keep the old one (logic below handles this)
-            // But we need to know the OLD url if we want to keep it.
-            // For simplicity: if customImageUrl is empty and file is empty, we might keep old URL.
-            // Let's refactor slightly:
-
             if (editingId) {
                 // UPDATE MODE
                 const projectRef = doc(db, "projects", editingId);
@@ -651,13 +740,13 @@ const ProjectsEditor = () => {
 
     return (
         <div className="space-y-6">
-            <h2 className="text-xl font-bold flex items-center gap-2">
+            <h2 className="text-xl font-bold flex items-center gap-2 text-zinc-900 dark:text-white">
                 <FaProjectDiagram className="text-blue-500" /> Yapılan İşler (Portfolyo)
             </h2>
 
             {/* Add/Edit Project Form */}
-            <div className={`p-4 rounded-lg border transition-colors ${editingId ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-700' : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'}`}>
-                <div className="flex justify-between items-center mb-3">
+            <div className={`p-6 rounded-2xl border transition-colors ${editingId ? 'bg-yellow-50 dark:bg-yellow-900/10 border-yellow-200 dark:border-yellow-700' : 'bg-blue-50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-800'}`}>
+                <div className="flex justify-between items-center mb-6">
                     <h3 className={`font-bold text-sm uppercase ${editingId ? 'text-yellow-800 dark:text-yellow-200' : 'text-blue-800 dark:text-blue-200'}`}>
                         {editingId ? 'Projeyi Düzenle' : 'Yeni Proje Ekle'}
                     </h3>
@@ -666,91 +755,93 @@ const ProjectsEditor = () => {
                     )}
                 </div>
 
-                <div className="grid gap-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-xs uppercase text-zinc-500 mb-1">Proje Başlığı</label>
+                <div className="grid gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Proje Başlığı</label>
                             <input
                                 value={newProject.title}
                                 onChange={e => setNewProject({ ...newProject, title: e.target.value })}
-                                className="w-full p-2 rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700"
+                                className="w-full px-4 py-3 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all text-sm"
                                 placeholder="Örn: E-Ticaret Sitesi"
                             />
                         </div>
-                        <div>
-                            <label className="block text-xs uppercase text-zinc-500 mb-1">Proje URL (Ziyaret Linki)</label>
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Proje URL (Ziyaret Linki)</label>
                             <input
                                 value={newProject.url}
                                 onChange={e => setNewProject({ ...newProject, url: e.target.value })}
-                                className="w-full p-2 rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700"
+                                className="w-full px-4 py-3 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all text-sm"
                                 placeholder="https://..."
                             />
                         </div>
                     </div>
 
-                    <div className={`border-t pt-4 ${editingId ? 'border-yellow-200 dark:border-yellow-700' : 'border-blue-200 dark:border-blue-800'}`}>
-                        <label className="block text-xs uppercase text-zinc-500 mb-2 font-bold">Kapak Fotoğrafı {editingId ? '(Değiştirmek İsterseniz)' : '(İsteğe Bağlı)'}</label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
+                    <div className={`border-t pt-6 ${editingId ? 'border-yellow-200 dark:border-yellow-800/50' : 'border-blue-200 dark:border-blue-800/50'}`}>
+                        <label className="block text-xs uppercase text-zinc-500 dark:text-zinc-400 mb-3 font-bold">Kapak Fotoğrafı {editingId ? '(Değiştirmek İsterseniz)' : '(İsteğe Bağlı)'}</label>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
                                 <span className="text-xs text-zinc-400 block mb-1">Seçenek 1: Dosya Yükle</span>
                                 <input
                                     type="file"
                                     accept="image/*"
                                     onChange={handleFileChange}
-                                    className="w-full text-sm text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200"
+                                    className="w-full text-sm text-zinc-500 dark:text-zinc-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-100 dark:file:bg-blue-900/40 file:text-blue-700 dark:file:text-blue-300 hover:file:bg-blue-200 dark:hover:file:bg-blue-900/60 transition-all cursor-pointer"
                                 />
                             </div>
-                            <div>
+                            <div className="space-y-2">
                                 <span className="text-xs text-zinc-400 block mb-1">Seçenek 2: Görsel Linki Yapıştır</span>
                                 <input
                                     value={newProject.customImageUrl}
                                     onChange={e => setNewProject({ ...newProject, customImageUrl: e.target.value })}
-                                    className="w-full p-2 rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 text-sm"
+                                    className="w-full px-4 py-3 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all text-sm"
                                     placeholder={editingId ? "Mevcut URL korunur" : "https://imgur.com/..."}
                                 />
                             </div>
                         </div>
                     </div>
 
-                    <button
-                        onClick={handleSave}
-                        disabled={uploading}
-                        className={`text-white py-2 rounded font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${editingId ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-blue-600 hover:bg-blue-700'}`}
-                    >
-                        {uploading ? 'İşleniyor...' : (editingId ? 'Değişiklikleri Kaydet' : 'Projeyi Ekle')}
-                    </button>
+                    <div className="flex justify-end">
+                        <button
+                            onClick={handleSave}
+                            disabled={uploading}
+                            className={`px-6 py-2.5 rounded-xl font-bold text-white shadow-lg transition-all ${editingId ? 'bg-yellow-600 hover:bg-yellow-700 shadow-yellow-900/20' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-900/20'} disabled:opacity-50 disabled:cursor-not-allowed text-sm`}
+                        >
+                            {uploading ? 'İşleniyor...' : (editingId ? 'Değişiklikleri Kaydet' : 'Projeyi Ekle')}
+                        </button>
+                    </div>
                 </div>
             </div>
 
             {/* Projects List */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {projects.map(project => (
-                    <div key={project.id} className={`relative group bg-white dark:bg-zinc-800 rounded-lg border overflow-hidden shadow-sm hover:shadow-md transition-all ${editingId === project.id ? 'ring-2 ring-yellow-500 border-yellow-500' : 'border-zinc-200 dark:border-zinc-700'}`}>
+                    <div key={project.id} className={`relative group bg-white dark:bg-zinc-900/50 rounded-2xl border overflow-hidden shadow-sm hover:shadow-lg transition-all ${editingId === project.id ? 'ring-2 ring-yellow-500 border-yellow-500' : 'border-zinc-200 dark:border-zinc-800'}`}>
                         <div className="aspect-video bg-zinc-100 dark:bg-zinc-900 relative overflow-hidden group-inner">
-                            <img src={project.thumbnailUrl} alt={project.title} className="w-full h-full object-cover object-top transition-transform duration-500 group-inner-hover:scale-105" />
-                            <div className="absolute bottom-0 left-0 bg-black/50 text-white text-[10px] px-2 py-1 backdrop-blur-sm">
+                            <img src={project.thumbnailUrl} alt={project.title} className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105" />
+                            <div className="absolute bottom-0 left-0 bg-black/60 text-white text-[10px] px-2 py-1 backdrop-blur-sm rounded-tr-lg">
                                 {project.thumbnailUrl && project.thumbnailUrl.includes('firebasestorage') ? '🔥 Storage' : '🔗 Link/Auto'}
                             </div>
                         </div>
-                        <div className="p-3">
-                            <h4 className="font-bold truncate">{project.title}</h4>
-                            <a href={project.url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 hover:underline truncate block">
+                        <div className="p-4">
+                            <h4 className="font-bold text-zinc-900 dark:text-white truncate mb-1">{project.title}</h4>
+                            <a href={project.url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 hover:text-blue-400 hover:underline truncate block">
                                 {project.url}
                             </a>
                         </div>
 
                         {/* Actions */}
-                        <div className="absolute top-2 right-2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="absolute top-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
                                 onClick={() => handleEdit(project)}
-                                className="bg-yellow-500 text-white p-2 rounded-full shadow-lg hover:bg-yellow-600 transition-colors"
+                                className="bg-yellow-500 text-white p-2 rounded-xl shadow-lg hover:bg-yellow-600 transition-colors"
                                 title="Düzenle"
                             >
                                 <FaTools size={12} />
                             </button>
                             <button
                                 onClick={() => handleDelete(project.id)}
-                                className="bg-red-600 text-white p-2 rounded-full shadow-lg hover:bg-red-700 transition-colors"
+                                className="bg-red-600 text-white p-2 rounded-xl shadow-lg hover:bg-red-700 transition-colors"
                                 title="Sil"
                             >
                                 <FaTrash size={12} />
@@ -759,7 +850,7 @@ const ProjectsEditor = () => {
                     </div>
                 ))}
                 {projects.length === 0 && (
-                    <div className="col-span-2 text-center py-8 text-zinc-500">
+                    <div className="col-span-2 text-center py-12 text-zinc-500 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl">
                         Henüz proje eklenmemiş.
                     </div>
                 )}
@@ -804,13 +895,13 @@ const MessagesViewer = () => {
 
             <div className="space-y-4">
                 {messages.length === 0 ? (
-                    <div className="text-center py-12 bg-white dark:bg-zinc-800 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700">
+                    <div className="text-center py-12 bg-white dark:bg-zinc-900/50 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700">
                         <FaEnvelope className="mx-auto text-4xl text-zinc-300 mb-2" />
                         <p className="text-zinc-500">Henüz hiç mesaj yok.</p>
                     </div>
                 ) : (
                     messages.map((msg) => (
-                        <div key={msg.id} className="bg-white dark:bg-zinc-800 p-6 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm relative group">
+                        <div key={msg.id} className="bg-white dark:bg-zinc-900/50 p-6 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm relative group">
                             <div className="flex justify-between items-start mb-4">
                                 <div>
                                     <h3 className="font-bold text-lg text-zinc-800 dark:text-zinc-100 flex items-center gap-2">
@@ -907,14 +998,14 @@ const RecommendationsEditor = () => {
             </h2>
 
             {recommendations.length === 0 && (
-                <div className="text-center py-12 text-zinc-500 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg border border-dashed border-zinc-200 dark:border-zinc-700">
+                <div className="text-center py-12 text-zinc-500 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-dashed border-zinc-200 dark:border-zinc-700">
                     Henüz şarkı önerisi gelmemiş.
                 </div>
             )}
 
             <div className="grid grid-cols-1 gap-4">
                 {recommendations.map(rec => (
-                    <div key={rec.id} className="bg-white dark:bg-zinc-800 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    <div key={rec.id} className="bg-white dark:bg-zinc-900/50 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col sm:flex-row items-start sm:items-center gap-4">
                         <img src={rec.albumImageUrl} alt="" className="w-16 h-16 rounded-md shadow-sm object-cover" />
 
                         <div className="flex-1 min-w-0">
@@ -964,9 +1055,13 @@ const Dashboard = () => {
     const [activeTab, setActiveTab] = useState('profile');
     const navigate = useNavigate();
 
-    const handleLogout = () => {
-        localStorage.removeItem('isAuthenticated');
-        navigate('/login');
+    const handleLogout = async () => {
+        try {
+            await signOut(auth);
+            navigate('/login');
+        } catch (error) {
+            console.error("Logout Error:", error);
+        }
     };
 
     const handleProfileSave = (newData) => {
@@ -980,60 +1075,67 @@ const Dashboard = () => {
     };
 
     return (
-        <div className="min-h-screen bg-zinc-100 dark:bg-black text-zinc-900 dark:text-zinc-100 flex font-sans">
+        <div className="min-h-screen bg-black text-zinc-100 flex font-sans selection:bg-green-500/30">
             {/* Sidebar */}
-            <div className="w-64 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col p-4 fixed h-full overflow-y-auto shadow-sm z-20">
-                <div className="mb-8 mt-2 flex flex-col items-center">
-                    <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white mb-2 shadow-lg">
-                        <FaTools />
+            <div className="w-72 bg-zinc-900/50 backdrop-blur-xl border-r border-zinc-800 flex flex-col p-6 fixed h-full overflow-y-auto z-20">
+                <div className="mb-10 mt-2 flex items-center gap-3 px-2">
+                    <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center text-black shadow-lg shadow-green-500/20">
+                        <FaTools size={20} />
                     </div>
-                    <h1 className="text-lg font-bold tracking-tight">Admin Panel</h1>
+                    <div>
+                        <h1 className="text-lg font-bold tracking-tight text-white leading-tight">Yönetim</h1>
+                        <p className="text-xs text-zinc-500">Panel v2.0</p>
+                    </div>
                 </div>
 
-                <nav className="flex-1 space-y-1">
-                    <button onClick={() => setActiveTab('profile')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${activeTab === 'profile' ? 'bg-blue-600 text-white shadow-md transform translate-x-1' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}>
+                <nav className="flex-1 space-y-1.5">
+                    <div className="text-xs font-bold text-zinc-600 uppercase tracking-widest mb-3 pl-3">İçerik</div>
+                    <button onClick={() => setActiveTab('profile')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'profile' ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
                         <FaUser /> Profil
                     </button>
-                    <button onClick={() => setActiveTab('bio')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${activeTab === 'bio' ? 'bg-blue-600 text-white shadow-md transform translate-x-1' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}>
+                    <button onClick={() => setActiveTab('bio')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'bio' ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
                         <FaInfoCircle /> Biyografi
                     </button>
-                    <button onClick={() => setActiveTab('services')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${activeTab === 'services' ? 'bg-blue-600 text-white shadow-md transform translate-x-1' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}>
+                    <button onClick={() => setActiveTab('services')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'services' ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
                         <FaTools /> Hizmetler
                     </button>
-                    <button onClick={() => setActiveTab('projects')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${activeTab === 'projects' ? 'bg-blue-600 text-white shadow-md transform translate-x-1' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}>
+                    <button onClick={() => setActiveTab('projects')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'projects' ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
                         <FaProjectDiagram /> Projeler
                     </button>
-                    <div className="h-px bg-zinc-200 dark:bg-zinc-800 my-2"></div>
-                    <button onClick={() => setActiveTab('chat_history')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${activeTab === 'chat_history' ? 'bg-green-600 text-white shadow-md transform translate-x-1' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}>
+
+                    <div className="h-px bg-zinc-800 my-4 mx-2"></div>
+
+                    <div className="text-xs font-bold text-zinc-600 uppercase tracking-widest mb-3 pl-3">Etkileşim</div>
+                    <button onClick={() => setActiveTab('chat_history')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'chat_history' ? 'bg-green-500/10 text-green-400 border border-green-500/20 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
                         <FaComments /> Sohbetler
                     </button>
-                    <button onClick={() => setActiveTab('messages')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${activeTab === 'messages' ? 'bg-purple-600 text-white shadow-md transform translate-x-1' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}>
-                        <FaEnvelope /> Mesajlar
+                    <button onClick={() => setActiveTab('messages')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'messages' ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
+                        <FaEnvelope /> Gelen Kutusu
                     </button>
-                    <button onClick={() => setActiveTab('socials')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${activeTab === 'socials' ? 'bg-blue-600 text-white shadow-md transform translate-x-1' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}>
-                        <FaShareAlt /> İletişim
+                    <button onClick={() => setActiveTab('socials')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'socials' ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
+                        <FaShareAlt /> Sosyal Medya
                     </button>
-                    <button onClick={() => setActiveTab('spotify')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${activeTab === 'spotify' ? 'bg-green-600 text-white shadow-md transform translate-x-1' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}>
+                    <button onClick={() => setActiveTab('spotify')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'spotify' ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
                         <FaSpotify /> Günün Şarkısı
                     </button>
-                    <button onClick={() => setActiveTab('recommendations')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${activeTab === 'recommendations' ? 'bg-indigo-600 text-white shadow-md transform translate-x-1' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}>
+                    <button onClick={() => setActiveTab('recommendations')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'recommendations' ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
                         <FaLightbulb /> Öneriler
                     </button>
                 </nav>
 
-                <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 mt-4 space-y-2">
-                    <button onClick={resetToDefaults} className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
-                        Sıfırla
-                    </button>
-                    <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors">
+                <div className="pt-4 border-t border-zinc-800 mt-4 space-y-2">
+                    <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors">
                         <FaSignOutAlt /> Çıkış Yap
                     </button>
                 </div>
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 ml-64 p-8 bg-zinc-50 dark:bg-black min-h-screen">
-                <div className="max-w-4xl mx-auto bg-white dark:bg-zinc-900 rounded-2xl p-8 shadow-lg border border-zinc-200 dark:border-zinc-800">
+            <div className="flex-1 ml-72 p-8 min-h-screen">
+                <div className="max-w-5xl mx-auto bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+                    {/* Background decoration */}
+                    <div className="absolute top-0 right-0 w-96 h-96 bg-green-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+
                     {/* Render active tab content */}
                     {activeTab === 'profile' && <ProfileEditor initialData={profile} onSave={handleProfileSave} />}
                     {activeTab === 'bio' && <BioEditor initialData={bio} onSave={handleBioSave} />}
@@ -1053,7 +1155,7 @@ const Dashboard = () => {
                 <div className="fixed bottom-8 right-8 z-50">
                     <button
                         onClick={() => navigate('/')}
-                        className="flex items-center gap-2 px-6 py-3 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-full font-bold shadow-2xl hover:scale-105 hover:shadow-xl transition-all duration-300 ring-2 ring-white dark:ring-black"
+                        className="flex items-center gap-2 px-6 py-3 bg-white text-black rounded-full font-bold shadow-2xl hover:scale-105 hover:shadow-[0_0_30px_-5px_rgba(255,255,255,0.3)] transition-all duration-300 transform"
                     >
                         Siteyi Görüntüle →
                     </button>

@@ -68,100 +68,131 @@ const ChatBot = () => {
 
         // 1. Weather Check (Simple Intent Detection)
         if ((q.includes('hava') || q.includes('sıcaklık') || q.includes('derece')) && (q.includes('kaç') || q.includes('nasıl') || q.includes('nedir'))) {
-            // Extract city attempt (very basic)
-            // Ideally we'd ask the AI to extract entities, but for speed/simplicity in this hybrid approach:
-            // We'll ask Gemini to just extract the city name in a separate quick call, 
-            // OR we just send the whole thing to Gemini with a function tool definition.
-            // Let's stick to the prompt engineering approach for simplicity as per plan.
-
-            // Actually, let's try a regex for common Turkish cities or just pass context to AI.
-            // BETTER APPROACH:
-            // Call Gemini with the user query.
-            // If the user is asking about weather, we will append weather data if we can find a city.
-            // But to find the city, let's just make a best guess or let Gemini handle "I don't know the city" if we don't provide it.
-
-            // Let's loop through common cities or look for capitalized words?
-            // "Çorum'da hava..." -> match Çorum
-
             const cityMatch = q.match(/([a-zA-ZçğıöşüÇĞİÖŞÜ]+)'(da|de|ta|te)/);
             let city = cityMatch ? cityMatch[1] : null;
 
             if (!city) {
-                // Try to find a city in the string directly if user typed "istanbul hava"
                 const commonCities = ["istanbul", "ankara", "izmir", "bursa", "antalya", "adana", "konya", "gaziantep", "çorum", "corum", "samsun", "trabzon"];
                 city = commonCities.find(c => q.includes(c));
             }
 
             if (city) {
-                const weatherData = await getWeather(city);
-                if (weatherData) {
-                    // Send to AI with context
-                    const contextMsg = `(Sistem Bilgisi: Kullanıcı ${city} için hava durumu sordu. Şu anki veriler: ${weatherData.temp}°C, ${weatherData.description}, Nem: %${weatherData.humidity}. Bu bilgiyi kullanarak kullanıcıya nazikçe cevap ver.)`;
-                    return await getChatResponse([], contextMsg + " " + query);
+                try {
+                    const weatherData = await getWeather(city);
+                    if (weatherData) {
+                        const contextMsg = `(Sistem Bilgisi: Kullanıcı ${city} için hava durumu sordu. Şu anki veriler: ${weatherData.temp}°C, ${weatherData.description}, Nem: %${weatherData.humidity}. Bu bilgiyi kullanarak kullanıcıya nazikçe cevap ver.)`;
+                        return await getChatResponse([], contextMsg + " " + query);
+                    }
+                } catch (e) {
+                    console.error("Weather error:", e);
                 }
             }
         }
 
         // 2. Standard AI Chat
-        // Prepare history for Gemini (checking last few messages for context)
-        // Gemini expects { role: 'user' | 'model', parts: [{ text: '...' }] }
-        const history = messages.slice(-10).map(m => ({
+        // 2. Standard AI Chat
+        let history = messages.slice(-10).map(m => ({
             role: m.sender === 'user' ? 'user' : 'model',
             parts: [{ text: m.text }]
         }));
 
-        // System Context (Persona)
-        const systemPrompt = `Sen Fahrielsara adında, hem bu web sitesinin asistanı hem de geniş bilgiye sahip yardımsever bir yapay zeka asistanısın.
-        
-        Web sitesi sahibi hakkında bilgiler:
-        İsim: ${content.profile.name}
-        Ünvan: ${content.profile.title}
-        Biyografi: ${content.bio.text1}
-        
-        Görevlerin:
-        1. Site sahibi hakkında sorulan sorulara yukarıdaki bilgilere dayanarak cevap ver.
-        2. KULLANICININ SORDUĞU DİĞER TÜM KONULARDA (Genel kültür, bilim, tarih, kodlama, günlük sohbet vb.) onlara yardımcı ol ve sorularını cevapla. Sadece site ile sınırlı kalma.
-        
-        Tarzın: Her zaman nazik, profesyonel, zeki ve yardımsever ol. Türkçe konuş.
-        Eğer hava durumu sorulursa ve elinde veri yoksa, "Hangi şehir için öğrenmek istersin?" diye sor.`;
+        // Remove leading model messages to comply with Gemini API (Must start with 'user')
+        while (history.length > 0 && history[0].role === 'model') {
+            history.shift();
+        }
 
-        // We pretend the system prompt is a previous turn or just part of the prompt
-        // For 'google/generative-ai', we can pass systemInstruction at model init or just prepend here.
-        // We'll prepend it to the history as a 'user' instruction for now or rely on the function wrapper doing it.
-        // My aiService wrapper takes (history, message). I'll pass the prompt inside the wrapper or here.
-        // Let's pass it as a special first message in history.
+        // Helper to format lists safely
+        const formatList = (list, formatter) => {
+            if (!list || !Array.isArray(list) || list.length === 0) return "Bu konuda henüz bilgi girişi yapılmamış.";
+            return list.map(formatter).join('\n');
+        };
 
-        const aiHistory = [
-            { role: 'user', parts: [{ text: systemPrompt }] },
-            { role: 'model', parts: [{ text: "Anlaşıldı, Fahrielsara olarak yardımcı olmaya hazırım." }] },
-            ...history
-        ];
+        const servicesString = formatList(content.services, s => `- ${s.title || 'Hizmet'}: ${s.short || ''} (${s.desc || ''})`);
+        const educationString = formatList(content.bio.education, e => `- ${e.school || 'Okul'}: ${e.degree || 'Bölüm'} (${e.year || 'Yıl'})`);
+        const socialString = formatList(content.socials?.filter(s => s.show), s => `- ${s.platform}: ${s.url}`);
 
-        return await getChatResponse(aiHistory, query);
+        const systemPrompt = `Sen **Fahrielsara AI**'sın. Bu web sitesinin ("${content.profile.name || 'Site Sahibi'}") resmi asistanısın.
+
+        � **MUHATABIN KİM? (ÖNEMLİ):** 
+        Şu an seninle konuşan kişi bir **ZİYARETÇİ**. 
+        **ASLA** karşındaki kişiye site sahibiymiş gibi hitap etme. 
+        **Site Sahibi (Fahri Bey)** hakkında üçüncü şahıs olarak bahset ("Fahri Bey şöyle yaptı...", "Kendisi bu konuda uzmandır..." gibi).
+
+        � **GÖREVİN:** 
+        Ziyaretçiye site sahibi hakkında bilgi ver, sorularını yanıtla ve onlara yardımcı ol.
+        
+        **SİTE SAHİBİ HAKKINDA BİLDİKLERİN (Kutsal Veri Kaynağı):**
+        - **İsim:** ${content.profile.name || 'Belirtilmemiş'}
+        - **Ünvan:** ${content.profile.title || 'Belirtilmemiş'}
+        - **Konum:** ${content.profile.location || 'Belirtilmemiş'}
+        - **Biyografi:** ${content.bio.about || 'Biyografi henüz eklenmemiş.'}
+        - **Misyon:** ${content.bio.mission || 'Misyon henüz eklenmemiş.'}
+        
+        🎓 **EĞİTİM GEÇMİŞİ (Kullanıcı sorarsa detaylı anlat):**
+        ${educationString}
+        
+        🛠️ **HİZMETLER (Neler yapıyoruz?):**
+        ${servicesString}
+        
+        🌐 **SOSYAL MEDYA:**
+        ${socialString}
+
+        💡 **DAVRANIŞ KURALLARI:**
+        1. **Analiz Et:** Ziyaretçi site sahibi hakkında bir şey sorarsa, elindeki verileri kullanarak zekice yorumlar yap.
+        2. **Her Şeye Cevap Ver:** Geyik muhabbeti, felsefe veya kodlama sorulursa arkadaşça cevapla.
+        3. **Üslup:** Samimi, emoji kullanan (🚀, 🧠, ✨), "siz" veya "sen" diyebilen ama her zaman saygılı bir asistan ol.
+
+        Unutma: Sen Fahrielsara'sın. Ziyaretçileri en iyi şekilde ağırlamak senin işin.`;
+
+        try {
+            return await getChatResponse(history, query, systemPrompt);
+        } catch (error) {
+            console.error("AI Generation Error:", error);
+            return "Şu an beyin kıvrımlarımda aşırı yüklenme var sanırım! 🤯 Ama toparlıyorum, lütfen sorunu tekrar sor, bu sefer halledeceğim!";
+        }
     };
 
     const handleSend = async (e) => {
         e.preventDefault();
         if (!input.trim()) return;
 
-        const userMsg = { id: Date.now(), sender: 'user', text: input };
+        const userText = input; // Capture input immediately
+        const userMsg = { id: Date.now(), sender: 'user', text: userText };
         const updatedMessages = [...messages, userMsg];
 
         setMessages(updatedMessages);
         setInput('');
         setIsTyping(true);
-        updateSession(updatedMessages); // Save user message
 
-        // Simulate AI delay
-        setTimeout(async () => {
-            const responseText = await generateAIResponse(userMsg.text);
-            const botMsg = { id: Date.now() + 1, sender: 'bot', text: responseText };
+        // Save user message (optimistic)
+        // We don't await this to keep UI snappy, but it's fine
+        updateSession(updatedMessages).catch(err => console.error("Session update error:", err));
 
+        try {
+            // Run API call and Minimum Delay in parallel
+            // This prevents the "wait 1.5s THEN start request" slowness
+            // But keeps the nice UI feeling of "thinking"
+            const [responseText] = await Promise.all([
+                generateAIResponse(userText),
+                new Promise(resolve => setTimeout(resolve, 1000)) // Reduced to 1s min wait
+            ]);
+
+            // Default safe response if something returns empty
+            const finalResponse = responseText || "Üzgünüm, bir şeyler ters gitti ve cevabı alamadım. Tekrar dener misin?";
+
+            const botMsg = { id: Date.now() + 1, sender: 'bot', text: finalResponse };
             const finalMessages = [...updatedMessages, botMsg];
+
             setMessages(finalMessages);
-            setIsTyping(false);
-            updateSession(finalMessages); // Save bot message
-        }, 1500);
+            updateSession(finalMessages);
+        } catch (error) {
+            console.error("Chat Error:", error);
+            // Fallback error message in UI
+            const botMsg = { id: Date.now() + 1, sender: 'bot', text: "Bağlantıda bir sorun oluştu. Lütfen sayfayı yenileyip tekrar deneyin." };
+            setMessages(prev => [...prev, botMsg]);
+        } finally {
+            setIsTyping(false); // ALWAYS ensure typing stops
+        }
     };
 
     return (

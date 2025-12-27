@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 
 const ProjectsSection = () => {
     const [projects, setProjects] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [width, setWidth] = useState(0);
     const carousel = useRef();
 
@@ -13,6 +14,7 @@ const ProjectsSection = () => {
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             setProjects(items);
+            setLoading(false);
         });
         return () => unsubscribe();
     }, []);
@@ -22,6 +24,19 @@ const ProjectsSection = () => {
             setWidth(carousel.current.scrollWidth - carousel.current.offsetWidth);
         }
     }, [projects]);
+
+    if (loading) {
+        return (
+            <div className="w-full max-w-4xl mx-auto mt-12 mb-20 px-4">
+                <div className="h-8 w-48 bg-zinc-800/50 rounded mx-auto mb-8 animate-pulse"></div>
+                <div className="flex gap-6 overflow-hidden">
+                    {[1, 2, 3].map((i) => (
+                        <div key={i} className="min-w-[280px] h-64 bg-zinc-800/10 dark:bg-zinc-800/50 rounded-xl border border-white/5 animate-pulse"></div>
+                    ))}
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="w-full max-w-4xl mx-auto mt-12 mb-20 px-4">
