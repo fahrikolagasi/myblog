@@ -3,9 +3,9 @@ import { motion } from 'framer-motion';
 import { useSiteContent } from '../../context/SiteContext';
 
 const SocialCard = ({ icon, label, href, color, glowColor, delay }) => {
-    // If it's the "Mail" or "Bana Yazın" link (custom check), scroll to contact
+    // Scroll to contact only if it's explicitly a contact anchor or WhatsApp
     const handleScroll = (e) => {
-        if (label === 'Mail' || label === 'E-posta' || href.includes('#contact')) {
+        if (href.includes('#contact')) {
             e.preventDefault();
             const contactSection = document.getElementById('contact');
             if (contactSection) {
@@ -43,11 +43,23 @@ const SocialCard = ({ icon, label, href, color, glowColor, delay }) => {
                 <span className="block font-bold text-zinc-200 group-hover:text-white transition-colors text-sm tracking-wide">
                     {label === 'Mail' ? 'Bana Yazın' : label}
                 </span>
-                <div className="h-4 overflow-hidden relative">
+                <div className="h-auto overflow-hidden relative">
                     <span className="text-[10px] text-zinc-500 uppercase tracking-widest group-hover:text-[color:var(--neon-color)] transition-colors block mt-1">
                         {(() => {
                             const l = label.toLowerCase();
-                            if (l.includes('mail') || l.includes('gmail')) return 'İLETİŞİME GEÇ';
+                            // Email Layout: "İLETİŞİME GEÇ" + Email Address below
+                            if (l.includes('mail') || l.includes('gmail') || l.includes('e-posta')) {
+                                // Strip 'mailto:' if present to show clean address
+                                const cleanEmail = href.replace('mailto:', '');
+                                return (
+                                    <div className="flex flex-col items-center">
+                                        <span>İLETİŞİME GEÇ</span>
+                                        <span className="normal-case text-[9px] text-zinc-400 mt-0.5 opacity-80 font-medium tracking-wide">
+                                            {cleanEmail}
+                                        </span>
+                                    </div>
+                                );
+                            }
                             if (l.includes('linkedin')) return 'BAĞLANTI KUR';
                             if (l.includes('github')) return 'PROJELERİME GÖZ AT';
                             return 'TAKİP ET';
@@ -75,7 +87,7 @@ const SocialGrid = () => {
                         key={link.id}
                         icon={getIcon(link.iconName)}
                         label={link.platform}
-                        href={link.url}
+                        href={(link.platform === 'Mail' || link.platform === 'E-posta') && !link.url.startsWith('mailto:') ? `mailto:${link.url}` : link.url}
                         color={link.color}
                         glowColor={link.color}
                         delay={0.1 + (index * 0.1)}

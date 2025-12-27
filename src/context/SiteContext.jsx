@@ -120,6 +120,13 @@ export const SiteProvider = ({ children }) => {
         saveToFirestore(updated);
     };
 
+    // 4b. Bulk Socials Update (Fix for overwriting issue)
+    const updateAllSocials = (newSocials) => {
+        const updated = { ...content, socials: newSocials };
+        setContent(updated);
+        saveToFirestore(updated);
+    };
+
     // Reset
     const resetToDefaults = () => {
         if (window.confirm("Tüm değişiklikler silinecek ve varsayılanlara dönülecek. Emin misiniz?")) {
@@ -139,6 +146,7 @@ export const SiteProvider = ({ children }) => {
             updateService,
             deleteService,
             updateSocial,
+            updateAllSocials,
             resetToDefaults
         }}>
             {children}

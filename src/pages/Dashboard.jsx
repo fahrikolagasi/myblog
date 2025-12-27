@@ -380,7 +380,7 @@ const SocialsEditor = ({ socials, onUpdate }) => {
     };
 
     const handleSave = () => {
-        localSocials.forEach(s => onUpdate(s.id, { url: s.url }));
+        onUpdate(localSocials);
         alert("Sosyal medya linkleri güncellendi!");
     };
 
@@ -408,7 +408,11 @@ const SocialsEditor = ({ socials, onUpdate }) => {
                                     className="w-full p-2 rounded bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:ring-2 focus:ring-blue-500 outline-none text-sm"
                                     value={link.url}
                                     onChange={(e) => handleChange(link.id, e.target.value)}
-                                    placeholder={`https://${link.platform.toLowerCase()}.com/...`}
+                                    placeholder={
+                                        link.platform === 'Mail' || link.platform === 'E-posta'
+                                            ? "ornek@email.com"
+                                            : `https://${link.platform.toLowerCase()}.com/...`
+                                    }
                                 />
                             </div>
                         </div>
@@ -1050,7 +1054,7 @@ const RecommendationsEditor = () => {
 };
 
 const Dashboard = () => {
-    const { content, updateProfile, updateBio, addService, deleteService, updateSocial, resetToDefaults } = useSiteContent();
+    const { content, updateProfile, updateBio, addService, deleteService, updateSocial, updateAllSocials, resetToDefaults } = useSiteContent();
     const { profile, bio, services, socials } = content;
     const [activeTab, setActiveTab] = useState('profile');
     const navigate = useNavigate();
@@ -1143,7 +1147,7 @@ const Dashboard = () => {
                     {activeTab === 'projects' && <ProjectsEditor />}
                     {activeTab === 'chat_history' && <ChatHistory />}
                     {activeTab === 'messages' && <MessagesViewer />}
-                    {activeTab === 'socials' && <SocialsEditor socials={socials} onUpdate={updateSocial} />}
+                    {activeTab === 'socials' && <SocialsEditor socials={socials} onUpdate={updateAllSocials} />}
                     {activeTab === 'spotify' && <SpotifyEditor />}
                     {activeTab === 'recommendations' && <RecommendationsEditor />}
                 </div>
