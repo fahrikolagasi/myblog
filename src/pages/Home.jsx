@@ -9,11 +9,15 @@ import CodeRain from '../components/UI/CodeRain';
 import SongOfTheDay from '../components/SongOfTheDay';
 import ProjectsSection from '../components/Bio/ProjectsSection';
 import ChatBot from '../components/ChatBot/ChatBot';
+import SEO from '../components/SEO';
 
 const Home = () => {
     return (
         // Global CSS handles background colors (Tokyo Night / White) via index.css
         <div className="min-h-screen transition-colors duration-300 font-sans selection:bg-green-500 selection:text-black relative overflow-hidden">
+
+            {/* SEO Configuration */}
+            <SEO />
 
             {/* Background Layer: Matrix Rain */}
             <CodeRain />
