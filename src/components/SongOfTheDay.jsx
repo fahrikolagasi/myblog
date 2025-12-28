@@ -4,7 +4,15 @@ import { FaSpotify, FaPlay, FaPause, FaHeadphones, FaLightbulb } from 'react-ico
 import SongSuggestionModal from './SongSuggestionModal';
 
 const SongOfTheDay = () => {
-    const [song, setSong] = useState(null);
+    const [song, setSong] = useState(() => {
+        try {
+            const saved = localStorage.getItem("spotify_songoftheday_cache");
+            return saved ? JSON.parse(saved) : null;
+        } catch (e) {
+            return null;
+        }
+    });
+
     const [isPlaying, setIsPlaying] = useState(false);
     const [showPrompt, setShowPrompt] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -14,6 +22,9 @@ const SongOfTheDay = () => {
     useEffect(() => {
         const unsubscribe = subscribeToSongOfTheDay((data) => {
             setSong(data);
+            if (data) {
+                localStorage.setItem("spotify_songoftheday_cache", JSON.stringify(data));
+            }
         });
         return () => unsubscribe();
     }, []);
@@ -81,6 +92,7 @@ const SongOfTheDay = () => {
                         <img
                             src={song.albumImageUrl}
                             alt={song.title}
+                            loading="eager"
                             className="relative w-full h-full object-cover rounded-md shadow-lg z-10 group-hover:scale-105 transition-transform duration-300"
                         />
 
