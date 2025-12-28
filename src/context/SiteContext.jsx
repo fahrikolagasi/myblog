@@ -35,9 +35,18 @@ const SiteContext = createContext();
 export const useSiteContent = () => useContext(SiteContext);
 
 export const SiteProvider = ({ children }) => {
-    // Start with defaultData to prevent UI flicker, then update from DB
-    const [content, setContent] = useState(defaultData);
-    const [loading, setLoading] = useState(false); // Default false for instant render using defaultData
+    // Start with localStorage content if available to prevent "flash of default data"
+    const [content, setContent] = useState(() => {
+        try {
+            const saved = localStorage.getItem("siteContent");
+            return saved ? JSON.parse(saved) : defaultData;
+        } catch (e) {
+            console.error("Error reading from localStorage", e);
+            return defaultData;
+        }
+    });
+
+    const [loading, setLoading] = useState(false); // Default false for instant render using cached/default data
 
     // Sync with Firestore Real-time
     useEffect(() => {
@@ -45,18 +54,21 @@ export const SiteProvider = ({ children }) => {
 
         const unsubscribe = onSnapshot(docRef, (docSnap) => {
             if (docSnap.exists()) {
-                // Merge data from DB
-                setContent(docSnap.data());
+                const newData = docSnap.data();
+                // Update State
+                setContent(newData);
+                // Update Local Cache for next reload
+                localStorage.setItem("siteContent", JSON.stringify(newData));
             } else {
                 // Initialize DB if empty
                 setDoc(docRef, defaultData);
                 setContent(defaultData);
+                localStorage.setItem("siteContent", JSON.stringify(defaultData));
             }
             setLoading(false);
         }, (error) => {
             console.error("Firestore sync error:", error);
-            // Fallback to localStorage if DB fails? Or just keep defaultData.
-            // keeping current content is improved resilience.
+            // On error, we just stay with whatever is in state (cache or default)
         });
 
         return () => unsubscribe();
@@ -65,6 +77,9 @@ export const SiteProvider = ({ children }) => {
     // Helper: Save whole object to Firestore
     const saveToFirestore = async (newContent) => {
         try {
+            // Optimistic update to localStorage
+            localStorage.setItem("siteContent", JSON.stringify(newContent));
+
             await setDoc(doc(db, "siteContent", "main"), newContent);
         } catch (error) {
             console.error("Error saving to Firestore:", error);

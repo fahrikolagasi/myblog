@@ -21,6 +21,7 @@ const Hero = () => {
                         <img
                             src={profile.image}
                             alt="Profile"
+                            loading="eager"
                             className="w-full h-full object-cover"
                         />
                     </div>
