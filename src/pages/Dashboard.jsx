@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSiteContent } from '../context/SiteContext';
-import { FaUser, FaInfoCircle, FaTools, FaShareAlt, FaSignOutAlt, FaPlus, FaTrash, FaSave, FaSpotify, FaSearch, FaCheck, FaMusic, FaProjectDiagram, FaEnvelope, FaPaperPlane, FaLightbulb, FaComments } from 'react-icons/fa';
+import { FaUser, FaInfoCircle, FaTools, FaShareAlt, FaSignOutAlt, FaPlus, FaTrash, FaSave, FaSpotify, FaSearch, FaCheck, FaMusic, FaProjectDiagram, FaEnvelope, FaPaperPlane, FaLightbulb, FaComments, FaBars, FaTimes } from 'react-icons/fa';
 import { doc, getDoc, setDoc, collection, addDoc, deleteDoc, onSnapshot, query, orderBy } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage, auth } from "../firebaseConfig";
@@ -26,7 +26,7 @@ const ProfileEditor = ({ initialData, onSave }) => {
     return (
         <div className="space-y-6">
             <SEO title="Yönetim Paneli" noindex={true} />
-            <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-4 gap-4">
                 <div>
                     <h2 className="text-xl font-bold text-zinc-900 dark:text-white">Profil Ayarları</h2>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Sitenizin ana kimlik bilgilerini buradan yönetin.</p>
@@ -146,7 +146,7 @@ const BioEditor = ({ initialData, onSave }) => {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-4">
                 <div>
                     <h2 className="text-xl font-bold text-zinc-900 dark:text-white">Biyografi & Eğitim</h2>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Hakkımda, misyon ve eğitim detaylarınızı buradan düzenleyin.</p>
@@ -199,7 +199,7 @@ const BioEditor = ({ initialData, onSave }) => {
                     {/* List */}
                     <div className="space-y-2 mb-4">
                         {(formData.education || []).map(edu => (
-                            <div key={edu.id} className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-xl border border-zinc-200 dark:border-zinc-800">
+                            <div key={edu.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-xl border border-zinc-200 dark:border-zinc-800 gap-3">
                                 <div>
                                     <div className="font-bold text-sm text-zinc-900 dark:text-white">{edu.school}</div>
                                     <div className="text-xs text-zinc-500 dark:text-zinc-400">{edu.degree} • {edu.year}</div>
@@ -274,7 +274,7 @@ const ServicesEditor = ({ services, onAdd, onDelete }) => {
 
     return (
         <div className="space-y-8">
-            <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-4 gap-4">
                 <div>
                     <h2 className="text-xl font-bold text-zinc-900 dark:text-white">Hizmetler</h2>
                     <p className="text-xs text-zinc-500 mt-1">Sunduğunuz hizmetleri buradan yönetin.</p>
@@ -399,8 +399,8 @@ const SocialsEditor = ({ socials, onUpdate }) => {
             </div>
             <div className="flex flex-col gap-3">
                 {localSocials.map(link => (
-                    <div key={link.id} className="p-4 bg-white dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800 shadow-sm flex items-center gap-4">
-                        <div className="font-bold text-zinc-700 dark:text-zinc-300 w-24">
+                    <div key={link.id} className="p-4 bg-white dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800 shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                        <div className="font-bold text-zinc-700 dark:text-zinc-300 w-full sm:w-24">
                             {link.platform}
                         </div>
                         <div className="flex-1">
@@ -503,7 +503,7 @@ const SpotifyEditor = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <h2 className="text-xl font-bold flex items-center gap-2 text-zinc-900 dark:text-white"><FaSpotify className="text-green-500" /> Günün Şarkısı</h2>
                 <button
                     onClick={handleSave}
@@ -752,7 +752,7 @@ const ProjectsEditor = () => {
 
             {/* Add/Edit Project Form */}
             <div className={`p-6 rounded-2xl border transition-colors ${editingId ? 'bg-yellow-50 dark:bg-yellow-900/10 border-yellow-200 dark:border-yellow-700' : 'bg-blue-50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-800'}`}>
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
                     <h3 className={`font-bold text-sm uppercase ${editingId ? 'text-yellow-800 dark:text-yellow-200' : 'text-blue-800 dark:text-blue-200'}`}>
                         {editingId ? 'Projeyi Düzenle' : 'Yeni Proje Ekle'}
                     </h3>
@@ -1059,6 +1059,7 @@ const Dashboard = () => {
     const { content, updateProfile, updateBio, addService, deleteService, updateSocial, updateAllSocials, resetToDefaults } = useSiteContent();
     const { profile, bio, services, socials } = content;
     const [activeTab, setActiveTab] = useState('profile');
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const navigate = useNavigate();
 
     const handleLogout = async () => {
@@ -1082,9 +1083,36 @@ const Dashboard = () => {
 
     return (
         <div className="min-h-screen bg-black text-zinc-100 flex font-sans selection:bg-green-500/30">
+            {/* Mobile Header & Hamburger */}
+            <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-zinc-900/90 backdrop-blur-md border-b border-zinc-800 flex items-center justify-between px-4 z-30">
+                <div className="font-bold text-white flex items-center gap-2">
+                    <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-black">
+                        <FaTools size={14} />
+                    </div>
+                    <span>Yönetim</span>
+                </div>
+                <button
+                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                    className="p-2 text-zinc-400 hover:text-white rounded-lg active:bg-zinc-800 transition-colors"
+                >
+                    {isSidebarOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+                </button>
+            </div>
+
+            {/* Mobile Overlay Backdrop */}
+            {isSidebarOpen && (
+                <div
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="md:hidden fixed inset-0 bg-black/80 z-30 transition-opacity backdrop-blur-sm"
+                ></div>
+            )}
+
             {/* Sidebar */}
-            <div className="w-72 bg-zinc-900/50 backdrop-blur-xl border-r border-zinc-800 flex flex-col p-6 fixed h-full overflow-y-auto z-20">
-                <div className="mb-10 mt-2 flex items-center gap-3 px-2">
+            <div className={`
+                fixed md:static inset-y-0 left-0 z-40 w-72 bg-zinc-900/50 backdrop-blur-xl border-r border-zinc-800 flex flex-col p-6 h-full overflow-y-auto transform transition-transform duration-300 ease-in-out
+                ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+            `}>
+                <div className="mb-10 mt-2 flex items-center gap-3 px-2 md:flex hidden"> {/* Hide Logo in sidebar on Desktop since it's cleaner, OR keep it? Let's keep it but handle mobile styling above */}
                     <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center text-black shadow-lg shadow-green-500/20">
                         <FaTools size={20} />
                     </div>
@@ -1094,37 +1122,44 @@ const Dashboard = () => {
                     </div>
                 </div>
 
+                {/* Mobile Sidebar Header (Alternative to above if we want logo inside menu) - keeping standard desktop one visible/hidden based on context if strictly needed, but let's just make the top block visible always in sidebar for consistency */}
+                <div className="mb-8 mt-1 flex items-center justify-between md:hidden">
+                    <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Menü</span>
+                    <button onClick={() => setIsSidebarOpen(false)} className="text-zinc-500 hover:text-white"><FaTimes /></button>
+                </div>
+
+
                 <nav className="flex-1 space-y-1.5">
                     <div className="text-xs font-bold text-zinc-600 uppercase tracking-widest mb-3 pl-3">İçerik</div>
-                    <button onClick={() => setActiveTab('profile')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'profile' ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
+                    <button onClick={() => { setActiveTab('profile'); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'profile' ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
                         <FaUser /> Profil
                     </button>
-                    <button onClick={() => setActiveTab('bio')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'bio' ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
+                    <button onClick={() => { setActiveTab('bio'); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'bio' ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
                         <FaInfoCircle /> Biyografi
                     </button>
-                    <button onClick={() => setActiveTab('services')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'services' ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
+                    <button onClick={() => { setActiveTab('services'); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'services' ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
                         <FaTools /> Hizmetler
                     </button>
-                    <button onClick={() => setActiveTab('projects')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'projects' ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
+                    <button onClick={() => { setActiveTab('projects'); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'projects' ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
                         <FaProjectDiagram /> Projeler
                     </button>
 
                     <div className="h-px bg-zinc-800 my-4 mx-2"></div>
 
                     <div className="text-xs font-bold text-zinc-600 uppercase tracking-widest mb-3 pl-3">Etkileşim</div>
-                    <button onClick={() => setActiveTab('chat_history')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'chat_history' ? 'bg-green-500/10 text-green-400 border border-green-500/20 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
+                    <button onClick={() => { setActiveTab('chat_history'); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'chat_history' ? 'bg-green-500/10 text-green-400 border border-green-500/20 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
                         <FaComments /> Sohbetler
                     </button>
-                    <button onClick={() => setActiveTab('messages')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'messages' ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
+                    <button onClick={() => { setActiveTab('messages'); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'messages' ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
                         <FaEnvelope /> Gelen Kutusu
                     </button>
-                    <button onClick={() => setActiveTab('socials')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'socials' ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
+                    <button onClick={() => { setActiveTab('socials'); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'socials' ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
                         <FaShareAlt /> Sosyal Medya
                     </button>
-                    <button onClick={() => setActiveTab('spotify')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'spotify' ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
+                    <button onClick={() => { setActiveTab('spotify'); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'spotify' ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
                         <FaSpotify /> Günün Şarkısı
                     </button>
-                    <button onClick={() => setActiveTab('recommendations')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'recommendations' ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
+                    <button onClick={() => { setActiveTab('recommendations'); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'recommendations' ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
                         <FaLightbulb /> Öneriler
                     </button>
                 </nav>
@@ -1137,8 +1172,8 @@ const Dashboard = () => {
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 ml-72 p-8 min-h-screen">
-                <div className="max-w-5xl mx-auto bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+            <div className="flex-1 md:ml-0 p-4 md:p-8 min-h-screen pt-20 md:pt-8 w-full">
+                <div className="max-w-5xl mx-auto bg-zinc-900 border border-zinc-800 rounded-3xl p-4 md:p-8 shadow-2xl relative overflow-hidden">
                     {/* Background decoration */}
                     <div className="absolute top-0 right-0 w-96 h-96 bg-green-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
 
