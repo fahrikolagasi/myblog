@@ -6,27 +6,94 @@ import { db } from "../firebaseConfig";
 // Default Data (Fallback / Initial Setup)
 const defaultData = {
     profile: {
-        name: "Fahri Kolağası",
-        title: "Fütüristik Yazılım Geliştirici",
-        location: "Türkiye",
-        image: "https://ui-avatars.com/api/?name=Fahri+Kolagasi&background=0D8ABC&color=fff&size=512",
-        quote: "Kod, geleceği inşa etmenin en zarif yoludur.",
-        quoteAuthor: "FK"
+        name: "FAHRİ KOLAĞASI",
+        title: "Software Developer",
+        location: "Çorum/TÜRKİYE",
+        image: "https://media.licdn.com/dms/image/v2/D4D03AQGydqV9i-vovw/profile-displayphoto-scale_200_200/B4DZtgyH_tKAAY-/0/1766855315159?e=1768435200&v=beta&t=g_4pa433MLSINubGE2srpV7TNsH039LyW0ehRqfhd_U",
+        quote: "Şimdilik sadece sinek avlıyorum. Ama zamanla birgün bataklığı kurutacağım..",
+        quoteAuthor: "Steve Jobs"
     },
     bio: {
-        about: "Merhaba, ben Fahri. Modern web teknolojileri, yapay zeka ve kullanıcı deneyimi üzerine odaklanan bir yazılım geliştiriciyim. Dijital dünyada iz bırakan projeler üretmeyi seviyorum.",
-        mission: "Teknolojiyi sanatla birleştirerek, insanların hayatına dokunan ve onlara ilham veren dijital deneyimler tasarlamak.",
-        education: []
+        about: "Ben Fahri Kolağası, 22 yaşındayım. Çorum’da yaşayan ve dijital dünyayı şekillendirme hedefiyle yola çıkan bir web geliştiriciyim. Ondokuz Mayıs Üniversitesi Bilgisayar Programcılığı mezunu olarak, teorik bilgimi pratik projelerle yukarı taşımayı hedefliyorum.",
+        mission: "Teknoloji ve tasarımı kusursuz bir dengede buluşturarak, kullanıcı deneyimini zirveye taşıyan dijital mimariler inşa ediyorum. Sadece kod yazmıyor; yüksek performanslı, sürdürülebilir ve yenilikçi sistemlerle dijital dünyada silinmez izler bırakıyorum. Karmaşayı işlevsel bir düzene, fikirleri ise yarının standartlarını belirleyen projelere dönüştürmek için buradayım.",
+        education: [
+            {
+                id: 1766846850947,
+                school: "ONDOKUZ MAYIS ÜNİVERSİTESİ",
+                degree: "BİLGİSAYAR PROGRAMCILIĞI-3.02",
+                year: "2023-2025"
+            },
+            {
+                id: 1766846870723,
+                school: "ÇORUM ANADOLU LİSESİ",
+                degree: "",
+                year: "2018-2022"
+            }
+        ]
     },
     services: [
-        { id: 1, title: 'Web Geliştirme', short: 'Modern ve hızlı web siteleri.', desc: 'React, Vite ve TailwindCSS kullanarak yüksek performanslı, SEO uyumlu ve mobil öncelikli web uygulamaları geliştiriyorum.', iconName: 'FaCode' },
-        { id: 2, title: 'UI/UX Tasarım', short: 'Kullanıcı odaklı arayüzler.', desc: 'Kullanıcı deneyimini merkeze alan, estetik ve işlevsel arayüz tasarımları yapıyorum.', iconName: 'FaPaintBrush' }
+        {
+            id: 1,
+            title: "Web Geliştirme",
+            short: "Modern ve hızlı web siteleri.",
+            desc: "React, Next.js ve modern frontend teknolojileri kullanarak, SEO uyumlu, hızlı açılan ve güvenli web siteleri geliştiriyorum.",
+            iconName: "FaCode"
+        },
+        {
+            id: 2,
+            title: "UI/UX Tasarım",
+            short: "Kullanıcı dostu arayüzler.",
+            desc: "Kullanıcı deneyimini merkeze alan, estetik ve fonksiyonel arayüz tasarımları. Figma kullanarak prototipleme.",
+            iconName: "FaPaintBrush"
+        },
+        {
+            id: 3,
+            title: "Mobil Uygulama",
+            short: "iOS ve Android uyumlu çözümler.",
+            desc: "React Native teknolojisi ile tek kod tabanından hem iOS hem Android için native performansında çalışan mobil uygulamalar.",
+            iconName: "FaMobileAlt"
+        },
+        {
+            id: 4,
+            title: "SEO Optimizasyon",
+            short: "Arama motorlarında üst sıralar.",
+            desc: "Sitenizin Google ve diğer arama motorlarında üst sıralarda yer alması için teknik SEO, içerik optimizasyonu ve performans iyileştirmeleri.",
+            iconName: "FaSearch"
+        }
     ],
     socials: [
-        { id: 1, platform: 'LinkedIn', url: 'https://linkedin.com/in/fahrikolagasi', color: '#0077b5', iconName: 'FaLinkedinIn', show: true },
-        { id: 2, platform: 'GitHub', url: 'https://github.com/fahrikolagasi', color: '#333', iconName: 'FaGithub', show: true },
-        { id: 3, platform: 'Instagram', url: 'https://instagram.com/fahrikolagasi', color: '#E1306C', iconName: 'FaInstagram', show: true },
-        { id: 4, platform: 'Mail', url: 'iletisim@fahrikolagasi.com', color: '#EA4335', iconName: 'FaEnvelope', show: true }
+        {
+            id: 1,
+            platform: "Instagram",
+            url: "https://www.instagram.com/fahrikolagasi/",
+            color: "#E1306C",
+            iconName: "FaInstagram",
+            show: true
+        },
+        {
+            id: 3,
+            platform: "LinkedIn",
+            url: "https://www.linkedin.com/in/fahri-kola%C4%9Fas%C4%B1?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3BRs2%2FvsQQRa%2BJOTZgTIq0xg%3D%3D",
+            color: "#0077B5",
+            iconName: "FaLinkedinIn",
+            show: true
+        },
+        {
+            id: 4,
+            platform: "GitHub",
+            url: "https://github.com/fahrikolagasi",
+            color: "#333",
+            iconName: "FaGithub",
+            show: true
+        },
+        {
+            id: 5,
+            platform: "Email",
+            url: "mailto:fahrikolagasi1@gmail.com",
+            color: "#EA4335",
+            iconName: "FaEnvelope",
+            show: true
+        }
     ]
 };
 
