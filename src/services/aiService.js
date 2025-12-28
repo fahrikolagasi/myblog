@@ -20,8 +20,9 @@ export const getChatResponse = async (history, userMessage, systemInstruction = 
             return "Üzgünüm, şu an bağlantımda bir sorun var (API Anahtarı eksik). Lütfen yönetici ile iletişime geçin.";
         }
 
-        // Use standard efficient model with higher quotas
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        // Use the verified model algorithmically chosen for your API Key
+        // 'gemini-flash-latest' maps to the newest high-quota Flash model (e.g. 2.0)
+        const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
         // Manual System Prompt Injection (Universal Compatibility)
         // Some versions of Gemini Pro specific APIs don't support the 'systemInstruction' param well.
