@@ -1,33 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <defs>
-    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="15" result="blur"/>
-      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
-    </filter>
-    <linearGradient id="metal" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#2a2a2a;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#000000;stop-opacity:1" />
-    </linearGradient>
-  </defs>
+  <!-- 
+    Professional & Minimalist Design for 'Antigravity'
+    - High contrast for visibility at small sizes (16x16px)
+    - Clean geometric shapes
+  -->
   
-  <!-- Background -->
-  <circle cx="256" cy="256" r="240" fill="url(#metal)" stroke="#00ff41" stroke-width="10" />
+  <!-- Background: Solid Dark Circle (Matches site theme) -->
+  <circle cx="256" cy="256" r="256" fill="#09090b" />
   
-  <!-- Circuit Lines (Decorative) -->
-  <path d="M256 16v50M256 446v50M16 256h50M446 256h50" stroke="#003b00" stroke-width="4" />
+  <!-- Subtle Gradient Stroke for inner premium feel -->
+  <circle cx="256" cy="256" r="236" fill="none" stroke="#22c55e" stroke-width="20" opacity="0.8" />
 
-  <!-- The "F" - Robotic/Circuit Style -->
-  <path d="M140 120 h100 l20 20 v40 h-80 v180 h-40 v-240" fill="#00ff41" filter="url(#glow)" />
-  <circle cx="140" cy="120" r="15" fill="#fff" />
-  <circle cx="260" cy="140" r="10" fill="#fff" />
-  <rect x="180" y="220" width="60" height="20" fill="#00ff41" filter="url(#glow)" />
-
-  <!-- The "K" - Robotic/Circuit Style -->
-  <path d="M300 120 v240 h40 v-100 l60 100 h50 l-70 -110 l70 -90 h-50 l-60 80 v-120 z" fill="#00ff41" filter="url(#glow)" />
-  <circle cx="300" cy="360" r="15" fill="#fff" />
-  <circle cx="450" cy="120" r="10" fill="#fff" />
-  <circle cx="450" cy="360" r="10" fill="#fff" />
-  
-  <!-- Tech Details -->
-  <path d="M130 380 l250 0" stroke="#00ff41" stroke-width="2" stroke-dasharray="10,10" opacity="0.5" />
+  <!-- Monogram "FK" - Custom Geometric Typography -->
+  <g fill="#ffffff" transform="translate(100, 130)">
+    <!-- F -->
+    <path d="M0 0 H120 V40 H40 V100 H110 V140 H40 V250 H0 V0 Z" />
+    
+    <!-- K (Styled to match F thickness) -->
+    <path d="M160 0 H200 V110 L280 0 H330 L235 125 L340 250 H290 L200 140 V250 H160 V0 Z" />
+  </g>
 </svg>
