@@ -6,37 +6,12 @@ const BioSection = () => {
     const { content, loading } = useSiteContent();
     const { bio, profile } = content;
 
-    // Loading Skeleton
-    if (loading) {
-        return (
-            <div className="w-full max-w-2xl mx-auto px-6 mb-20 space-y-8">
-                {/* About Skeleton */}
-                <div className="bg-zinc-800/10 dark:bg-zinc-800/50 rounded-2xl p-8 h-48 animate-pulse border border-white/5"></div>
-                {/* Mission Skeleton */}
-                <div className="bg-zinc-800/10 dark:bg-zinc-800/50 rounded-2xl p-8 h-56 animate-pulse border border-white/5"></div>
-                {/* Education Skeleton */}
-                <div className="space-y-4 pt-8">
-                    <div className="h-4 w-32 bg-zinc-800/20 dark:bg-zinc-800/50 rounded mx-auto mb-8"></div>
-                    <div className="pl-16 space-y-4">
-                        <div className="h-24 bg-zinc-800/10 dark:bg-zinc-800/50 rounded-xl animate-pulse"></div>
-                        <div className="h-24 bg-zinc-800/10 dark:bg-zinc-800/50 rounded-xl animate-pulse delay-100"></div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
+    // Simplified: No Skeleton, No Entrance Animation
     return (
         <section className="w-full max-w-2xl mx-auto px-6 mb-20 z-10 relative space-y-8">
 
             {/* 1. About Me Card */}
-            <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5 }}
-                className="group relative"
-            >
+            <div className="group relative">
                 {/* Glow Effect */}
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl opacity-20 blur group-hover:opacity-40 transition duration-1000"></div>
 
@@ -58,16 +33,10 @@ const BioSection = () => {
                         {bio.about}
                     </p>
                 </div>
-            </motion.div>
+            </div>
 
             {/* 2. Mission Card (Featured) */}
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.3 }}
-                className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1e1e2e] to-[#151520] dark:from-zinc-50 dark:to-white border border-white/5 dark:border-zinc-200 p-8 shadow-2xl group"
-            >
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1e1e2e] to-[#151520] dark:from-zinc-50 dark:to-white border border-white/5 dark:border-zinc-200 p-8 shadow-2xl group">
                 {/* Background Decoration */}
                 <div className="absolute top-0 right-0 p-8 opacity-5 dark:opacity-[0.03] transform translate-x-1/3 -translate-y-1/3 group-hover:scale-110 transition-transform duration-700">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-64 w-64 text-purple-500" fill="currentColor" viewBox="0 0 24 24">
@@ -92,15 +61,10 @@ const BioSection = () => {
                         <span className="text-5xl text-purple-500/20 absolute -bottom-8 -right-2 font-sans">"</span>
                     </blockquote>
                 </div>
-            </motion.div>
+            </div>
 
             {/* 3. Education Timeline */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true }}
-                className="pt-8"
-            >
+            <div className="pt-8">
                 <div className="flex items-center gap-3 mb-8 px-4">
                     <span className="h-px flex-1 bg-gradient-to-r from-transparent via-zinc-400 dark:via-zinc-600 to-transparent"></span>
                     <span className="text-sm font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Eğitim Yolculuğum</span>
@@ -112,12 +76,8 @@ const BioSection = () => {
                     <div className="absolute left-[27px] top-4 bottom-4 w-0.5 bg-gradient-to-b from-green-500/50 via-green-500/20 to-transparent"></div>
 
                     {bio.education && bio.education.map((edu, index) => (
-                        <motion.div
+                        <div
                             key={edu.id}
-                            initial={{ opacity: 0, x: -10 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.3 }}
                             className="relative pl-16 py-4 group"
                         >
                             {/* Dot */}
@@ -137,10 +97,10 @@ const BioSection = () => {
                                     <span className="w-1.5 h-1.5 rounded-full bg-zinc-600 dark:bg-zinc-400"></span> {edu.degree}
                                 </p>
                             </div>
-                        </motion.div>
+                        </div>
                     ))}
                 </div>
-            </motion.div>
+            </div>
         </section>
     );
 };

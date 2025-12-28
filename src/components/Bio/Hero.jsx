@@ -7,29 +7,11 @@ const Hero = () => {
     const { content, loading } = useSiteContent();
     const { profile } = content;
 
-    if (loading) {
-        return (
-            <section className="w-full max-w-lg mx-auto z-10 px-6 py-8">
-                <div className="flex flex-col items-center text-center p-8 rounded-3xl bg-[#1a1b26]/90 dark:bg-white/90 backdrop-blur-xl border border-white/10 dark:border-zinc-200 shadow-2xl h-[400px] animate-pulse">
-                    <div className="w-40 h-40 rounded-2xl bg-white/10 dark:bg-zinc-200 mb-6"></div>
-                    <div className="h-8 w-48 bg-white/10 dark:bg-zinc-200 rounded mb-2"></div>
-                    <div className="h-6 w-32 bg-white/10 dark:bg-zinc-200 rounded mb-4"></div>
-                    <div className="w-full h-[1px] bg-white/10 dark:bg-zinc-200 mb-6"></div>
-                    <div className="h-4 w-64 bg-white/10 dark:bg-zinc-200 rounded"></div>
-                </div>
-            </section>
-        );
-    }
-
+    // Simplified: No Skeleton, No Entrance Animation
     return (
         <section className="w-full max-w-lg mx-auto z-10 px-6 py-8">
-            <motion.div
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.6 }}
-                // INVERTED THEME LOGIC: 
-                // Light Mode (Default) -> Dark Card (Tokyo Night)
-                // Dark Mode ('dark') -> White Card
+            <div
+                // Removed motion.div initial/animate props
                 className="relative flex flex-col items-center text-center p-8 rounded-3xl bg-[#1a1b26]/90 dark:bg-white/90 backdrop-blur-xl border border-white/10 dark:border-zinc-200 shadow-2xl overflow-hidden"
             >
                 {/* 1. Square Profile Image with Glow */}
@@ -71,7 +53,7 @@ const Hero = () => {
                     </p>
                 </blockquote>
 
-            </motion.div>
+            </div>
         </section>
     );
 };

@@ -25,19 +25,7 @@ const ProjectsSection = () => {
         }
     }, [projects]);
 
-    if (loading) {
-        return (
-            <div className="w-full max-w-4xl mx-auto mt-12 mb-20 px-4">
-                <div className="h-8 w-48 bg-zinc-800/50 rounded mx-auto mb-8 animate-pulse"></div>
-                <div className="flex gap-6 overflow-hidden">
-                    {[1, 2, 3].map((i) => (
-                        <div key={i} className="min-w-[280px] h-64 bg-zinc-800/10 dark:bg-zinc-800/50 rounded-xl border border-white/5 animate-pulse"></div>
-                    ))}
-                </div>
-            </div>
-        );
-    }
-
+    // Simplified: No Skeleton
     return (
         <div className="w-full max-w-4xl mx-auto mt-12 mb-20 px-4">
             <h2 className="text-2xl font-bold text-center mb-8 text-white drop-shadow-md">

@@ -54,19 +54,7 @@ const ServicesSection = () => {
     const { content, getIcon, loading } = useSiteContent();
     const { services } = content;
 
-    if (loading) {
-        return (
-            <div className="w-full max-w-lg mx-auto px-6 mb-10">
-                <div className="h-4 w-24 bg-zinc-800/50 rounded mb-4 mx-auto md:mx-0 animate-pulse"></div>
-                <div className="grid grid-cols-2 gap-3">
-                    {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="h-24 bg-zinc-800/10 dark:bg-zinc-800/50 border border-white/5 rounded-2xl animate-pulse"></div>
-                    ))}
-                </div>
-            </div>
-        );
-    }
-
+    // Simplified: No Skeleton
     return (
         <div className="w-full max-w-lg mx-auto px-6 mb-10">
             <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400 dark:text-[#565f89] mb-4 pl-1 text-center md:text-left">
