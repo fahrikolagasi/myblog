@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaLock } from 'react-icons/fa';
+import SEO from '../components/SEO';
 
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
@@ -30,6 +31,7 @@ const LoginPage = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-black p-4 text-zinc-200 font-sans selection:bg-green-500/30">
+            <SEO title="Yönetici Girişi" noindex={true} />
             {/* Background Gradient */}
             <div className="fixed inset-0 bg-gradient-to-tr from-green-500/5 via-transparent to-blue-500/5 pointer-events-none"></div>
 

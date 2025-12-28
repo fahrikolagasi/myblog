@@ -2,7 +2,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useSiteContent } from '../context/SiteContext';
 
-const SEO = ({ title, description, keywords, image, url }) => {
+const SEO = ({ title, description, keywords, image, url, noindex = false }) => {
     const { content } = useSiteContent();
 
     // Fallback data from SiteContext if props aren't provided
@@ -36,6 +36,9 @@ const SEO = ({ title, description, keywords, image, url }) => {
             <meta name="keywords" content={cleanKeywords} />
             <meta name="author" content={siteName} />
             <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+            {/* Indexing Control */}
+            {noindex && <meta name="robots" content="noindex, nofollow" />}
 
             {/* Open Graph / Facebook / LinkedIn */}
             <meta property="og:type" content="website" />

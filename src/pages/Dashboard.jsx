@@ -8,6 +8,7 @@ import { db, storage, auth } from "../firebaseConfig";
 import { signOut } from "firebase/auth";
 import { searchTracks } from '../services/spotify';
 import ChatHistory from '../components/ChatBot/ChatHistory';
+import SEO from '../components/SEO';
 
 // 1. Profile Editor Component (Defined OUTSIDE to prevent re-renders)
 const ProfileEditor = ({ initialData, onSave }) => {
@@ -24,6 +25,7 @@ const ProfileEditor = ({ initialData, onSave }) => {
 
     return (
         <div className="space-y-6">
+            <SEO title="Yönetim Paneli" noindex={true} />
             <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-4">
                 <div>
                     <h2 className="text-xl font-bold text-zinc-900 dark:text-white">Profil Ayarları</h2>
