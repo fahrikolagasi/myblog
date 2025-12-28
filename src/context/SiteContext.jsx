@@ -6,16 +6,16 @@ import { db } from "../firebaseConfig";
 // Default Data (Fallback / Initial Setup)
 const defaultData = {
     profile: {
-        name: "", // Start empty to prevent "wrong spelling" flash
-        title: "",
-        location: "",
-        image: "https://ui-avatars.com/api/?name=FK&background=0D8ABC&color=fff&size=512", // Initial generic avatar
-        quote: "",
-        quoteAuthor: ""
+        name: "Fahri Kolağası",
+        title: "Fütüristik Yazılım Geliştirici",
+        location: "Türkiye",
+        image: "https://ui-avatars.com/api/?name=Fahri+Kolagasi&background=0D8ABC&color=fff&size=512",
+        quote: "Kod, geleceği inşa etmenin en zarif yoludur.",
+        quoteAuthor: "FK"
     },
     bio: {
-        about: "",
-        mission: "",
+        about: "Merhaba, ben Fahri. Modern web teknolojileri, yapay zeka ve kullanıcı deneyimi üzerine odaklanan bir yazılım geliştiriciyim. Dijital dünyada iz bırakan projeler üretmeyi seviyorum.",
+        mission: "Teknolojiyi sanatla birleştirerek, insanların hayatına dokunan ve onlara ilham veren dijital deneyimler tasarlamak.",
         education: []
     },
     services: [
