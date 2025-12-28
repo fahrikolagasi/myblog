@@ -42,9 +42,10 @@ const ProjectsSection = () => {
                 Yapılan İşler
             </h2>
 
-            {/* Simplified: Removed draggable carousel for absolute stability, replaced with scrollable flex */}
-            <div ref={carousel} className="overflow-x-auto pb-4 hide-scrollbar">
-                <div
+            <motion.div ref={carousel} className="cursor-grab overflow-hidden" whileTap={{ cursor: "grabbing" }}>
+                <motion.div
+                    drag="x"
+                    dragConstraints={{ right: 0, left: -width }}
                     className="flex gap-6"
                 >
                     {/* Project Cards */}
@@ -85,8 +86,8 @@ const ProjectsSection = () => {
                         </div>
                     </div>
 
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
         </div>
     );
 };
