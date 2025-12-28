@@ -12,12 +12,13 @@ const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
  * @param {String} systemInstruction - Optional system instruction to guide the bot's persona
  * @returns {Promise<String>} - The AI's response text
  */
-// List of models to try in order of preference (High quota -> Older stable)
+// List of models to try in order of preference (Experimental -> High Quota -> Standard)
 const MODELS_TO_TRY = [
-    "gemini-2.0-flash",      // Flash 2.0 (Often higher limits than 2.5 preview)
-    "gemini-2.0-flash-001",  // Specific version
-    "gemini-pro",            // Stable Pro
-    "gemini-pro-latest"      // Latest Pro
+    "gemini-exp-1206",       // Experimental (Often high quota/unlimited for testing)
+    "gemini-2.0-flash-exp",   // Flash Experimental
+    "gemini-2.5-flash",       // Standard Flash (Limit 20)
+    "gemini-2.5-flash-lite",  // Standard Lite (Limit 20)
+    "gemini-flash-latest"     // Fallback alias
 ];
 
 /**
