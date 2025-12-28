@@ -9,7 +9,7 @@ const defaultData = {
         name: "Fahri Kolagaşı",
         title: "Fütüristik Yazılım Geliştirici",
         location: "Türkiye",
-        image: "https://media.licdn.com/dms/image/D4D03AQE1zM8o5-Q5QA/profile-displayphoto-shrink_800_800/0/1691234567890?e=1700000000&v=beta&t=placeholder", // Ideally this should be a local asset or stable URL
+        image: "https://ui-avatars.com/api/?name=Fahri+Kolagasi&background=0D8ABC&color=fff&size=512", // Reliable default placeholder
         quote: "Kod, geleceği inşa etmenin en zarif yoludur.",
         quoteAuthor: "FK"
     },

@@ -22,6 +22,10 @@ const Hero = () => {
                             src={profile.image}
                             alt="Profile"
                             loading="eager"
+                            onError={(e) => {
+                                e.target.onerror = null; // Prevent infinite loop
+                                e.target.src = "https://ui-avatars.com/api/?name=Fahri+Kolagasi&background=0D8ABC&color=fff&size=512";
+                            }}
                             className="w-full h-full object-cover"
                         />
                     </div>
