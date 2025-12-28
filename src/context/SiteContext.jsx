@@ -6,20 +6,28 @@ import { db } from "../firebaseConfig";
 // Default Data (Fallback / Initial Setup)
 const defaultData = {
     profile: {
-        name: "",
-        title: "",
-        location: "",
-        image: "",
-        quote: "",
-        quoteAuthor: ""
+        name: "Fahri Kolagaşı",
+        title: "Fütüristik Yazılım Geliştirici",
+        location: "Türkiye",
+        image: "https://media.licdn.com/dms/image/D4D03AQE1zM8o5-Q5QA/profile-displayphoto-shrink_800_800/0/1691234567890?e=1700000000&v=beta&t=placeholder", // Ideally this should be a local asset or stable URL
+        quote: "Kod, geleceği inşa etmenin en zarif yoludur.",
+        quoteAuthor: "FK"
     },
     bio: {
-        about: "",
-        mission: "",
+        about: "Merhaba, ben Fahri. Modern web teknolojileri, yapay zeka ve kullanıcı deneyimi üzerine odaklanan bir yazılım geliştiriciyim. Dijital dünyada iz bırakan projeler üretmeyi seviyorum.",
+        mission: "Teknolojiyi sanatla birleştirerek, insanların hayatına dokunan ve onlara ilham veren dijital deneyimler tasarlamak.",
         education: []
     },
-    services: [],
-    socials: []
+    services: [
+        { id: 1, title: 'Web Geliştirme', short: 'Modern ve hızlı web siteleri.', desc: 'React, Vite ve TailwindCSS kullanarak yüksek performanslı, SEO uyumlu ve mobil öncelikli web uygulamaları geliştiriyorum.', iconName: 'FaCode' },
+        { id: 2, title: 'UI/UX Tasarım', short: 'Kullanıcı odaklı arayüzler.', desc: 'Kullanıcı deneyimini merkeze alan, estetik ve işlevsel arayüz tasarımları yapıyorum.', iconName: 'FaPaintBrush' }
+    ],
+    socials: [
+        { id: 1, platform: 'LinkedIn', url: 'https://linkedin.com/in/fahrikolagasi', color: '#0077b5', iconName: 'FaLinkedinIn', show: true },
+        { id: 2, platform: 'GitHub', url: 'https://github.com/fahrikolagasi', color: '#333', iconName: 'FaGithub', show: true },
+        { id: 3, platform: 'Instagram', url: 'https://instagram.com/fahrikolagasi', color: '#E1306C', iconName: 'FaInstagram', show: true },
+        { id: 4, platform: 'Mail', url: 'iletisim@fahrikolagasi.com', color: '#EA4335', iconName: 'FaEnvelope', show: true }
+    ]
 };
 
 const SiteContext = createContext();
@@ -29,7 +37,7 @@ export const useSiteContent = () => useContext(SiteContext);
 export const SiteProvider = ({ children }) => {
     // Start with defaultData to prevent UI flicker, then update from DB
     const [content, setContent] = useState(defaultData);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false); // Default false for instant render using defaultData
 
     // Sync with Firestore Real-time
     useEffect(() => {

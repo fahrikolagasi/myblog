@@ -3,8 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSiteContent } from '../../context/SiteContext';
 
 const ServiceCard = ({ item, isOpen, onClick, getIcon }) => (
-    <motion.div
-        layout
+    <div
         onClick={onClick}
         className={`relative flex flex-col items-start p-5 rounded-2xl border cursor-pointer transition-colors duration-300 overflow-hidden 
             ${isOpen
@@ -12,41 +11,36 @@ const ServiceCard = ({ item, isOpen, onClick, getIcon }) => (
                 : 'bg-[#1a1b26] dark:bg-white border-zinc-800 dark:border-zinc-200 hover:border-blue-500/50 dark:hover:border-blue-400'
             }`}
     >
-        <motion.div layout className="flex items-center gap-3 w-full">
+        <div className="flex items-center gap-3 w-full">
             <div className={`text-2xl transition-colors ${isOpen ? 'text-blue-400 dark:text-blue-600' : 'text-zinc-500 dark:text-zinc-400'}`}>
                 {getIcon(item.iconName)}
             </div>
             <div className="flex-1">
-                <motion.h3 layout className="font-bold text-[#c0caf5] dark:text-zinc-800 text-sm">
+                <h3 className="font-bold text-[#c0caf5] dark:text-zinc-800 text-sm">
                     {item.title}
-                </motion.h3>
+                </h3>
                 {!isOpen && (
-                    <motion.p layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs text-[#565f89] dark:text-zinc-500 mt-0.5">
+                    <p className="text-xs text-[#565f89] dark:text-zinc-500 mt-0.5">
                         {item.short}
-                    </motion.p>
+                    </p>
                 )}
             </div>
-            <motion.div layout className="text-zinc-300 dark:text-zinc-400 ml-auto">
+            <div className="text-zinc-300 dark:text-zinc-400 ml-auto">
                 {isOpen ? '−' : '+'}
-            </motion.div>
-        </motion.div>
+            </div>
+        </div>
 
-        <AnimatePresence>
-            {isOpen && (
-                <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="w-full"
-                >
-                    <div className="h-[1px] w-full bg-white/5 dark:bg-zinc-200 my-3"></div>
-                    <p className="text-xs md:text-sm text-[#9aa5ce] dark:text-zinc-600 leading-relaxed">
-                        {item.desc}
-                    </p>
-                </motion.div>
-            )}
-        </AnimatePresence>
-    </motion.div>
+        {isOpen && (
+            <div
+                className="w-full"
+            >
+                <div className="h-[1px] w-full bg-white/5 dark:bg-zinc-200 my-3"></div>
+                <p className="text-xs md:text-sm text-[#9aa5ce] dark:text-zinc-600 leading-relaxed">
+                    {item.desc}
+                </p>
+            </div>
+        )}
+    </div>
 );
 
 const ServicesSection = () => {

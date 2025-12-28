@@ -15,18 +15,14 @@ const SocialCard = ({ icon, label, href, color, glowColor, delay }) => {
     };
 
     return (
-        <motion.a
+        <a
             href={href}
             onClick={handleScroll}
             target={href.includes('#') ? "_self" : "_blank"}
             rel="noopener noreferrer"
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: delay, duration: 0.4 }}
-            whileHover={{ scale: 1.05, y: -5 }}
-            whileTap={{ scale: 0.98 }}
+            // Removed entrance animations (initial, animate, transition)
             style={{ '--neon-color': glowColor }}
-            className="group relative flex flex-col items-center justify-between p-6 rounded-2xl bg-zinc-900/40 dark:bg-zinc-900/60 backdrop-blur-md border border-zinc-700/50 transition-all duration-300 hover:border-[color:var(--neon-color)] hover:shadow-[0_0_20px_-5px_var(--neon-color)] w-full overflow-hidden aspect-square md:aspect-auto md:h-48 cursor-pointer"
+            className="group relative flex flex-col items-center justify-between p-6 rounded-2xl bg-zinc-900/40 dark:bg-zinc-900/60 backdrop-blur-md border border-zinc-700/50 transition-all duration-300 hover:border-[color:var(--neon-color)] hover:shadow-[0_0_20px_-5px_var(--neon-color)] w-full overflow-hidden aspect-square md:aspect-auto md:h-48 cursor-pointer transform hover:scale-105 hover:-translate-y-1 active:scale-95"
         >
             {/* Background Gradient */}
             <div className="absolute inset-0 bg-gradient-to-b from-[color:var(--neon-color)]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -67,7 +63,7 @@ const SocialCard = ({ icon, label, href, color, glowColor, delay }) => {
                     </span>
                 </div>
             </div>
-        </motion.a>
+        </a>
     );
 };
 
