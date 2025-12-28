@@ -44,10 +44,10 @@ const Home = () => {
                     <Contact />
                 </div>
 
-                <footer className="mt-12 text-center pb-8">
-                    <div className="h-[1px] w-10 bg-zinc-300 dark:bg-white/20 mx-auto mb-4"></div>
-                    <p className="text-[10px] text-zinc-500 dark:text-zinc-500 uppercase tracking-widest opacity-70">
-                        Wake Up, Neo...
+                {/* Footer */}
+                <footer className="w-full max-w-2xl mx-auto px-6 pb-8 text-center">
+                    <p className="text-xs text-zinc-600 dark:text-zinc-500 font-medium">
+                        &copy; {new Date().getFullYear()} Fahri Kolağası. Tüm hakları saklıdır.
                     </p>
                 </footer>
             </main>
